@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Movie Page";
+}
+
+@model IEnumerable<bai1.Models.Movie>
+
+
+<div class="text-center">
+    <h1 class="display-4">Movie Management System</h1>
+    
+</div>
+
+<div class=""> 
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center ">
+            <h3 class="display-4 text-warning bg-dark"> No movie found </h3>
+            <button class="btn btn-primary" onclick=""> Add Movie </button>
+        </div>
+    }
+    else
+    {
+
+        @foreach (var movie in Model)
+        {
+            <div>
+                Movie List
+                <h3> ID: @movie.Id </h3>
+                <h3> Movie name: @movie.Title  </h3>
+                <h3> Movie rate: @movie.Rate  </h3>
+            </div>
+        }
+    }
+    
+</div>
