@@ -1,0 +1,34 @@
+﻿
+
+@model bai1.Models.LogOnModel
+
+<div id="modalLabel">
+    <div class="modal-header">
+        <h5 class="modal-title" >Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <form class="auth-form" asp-controller="Account" asp-action="Login" method="post">
+
+            <div class="mb-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <label asp-for="Username" class="form-label">Username<span class="text-danger"> *</span></label>
+                <input asp-for="Username" class="form-control" required />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Password<span class="text-danger"> *</span></label>
+                <input asp-for="Password" class="form-control" type="password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <input type="submit" value="Login" class="btn btn-primary" />
+        </form>
+        <div class="d-flex mt-3 gap-3 ">
+        <p style="color: gray; ">Don't have account ? </p>
+        <button id="registerBtn">Register here</button>
+    </div>
+    </div>
+</div>        
+
+       
+

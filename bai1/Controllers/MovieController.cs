@@ -5,25 +5,24 @@ namespace bai1.Controllers
 {
     public class MovieController : Controller
     {
-        //new () { Id = 1, Title = " Fish & Cat",
-        //        Description = " A fish and a cat are best friends, ", Rate = 5 },
-        //    new () { Id = 2, Title = " Dog & Goat",
-        //        Description = " A Dog and a Goat aren't best friends, ", Rate = 3
-        //    },
-        //    new()
-        //    {
-        //        Id = 3,
-        //        Title = " Fast & Furios",
-        //        Description = " Fast & FUrios are the best movie, ",
-        //        Rate = 5
-        //    },
-        public List<Movie> listMovies = new List<Movie>() {
-            
-        };
+        private readonly ApplicationDbContext _context; 
+
+        public MovieController (ApplicationDbContext context) { 
+            _context = context;    
+        }
 
         public IActionResult Index()
         {
-            return View(listMovies);
+            List<Movie> movies = _context.Movie.ToList();
+            return View(movies);
+        }
+
+        [HttpPost]
+        public IActionResult Add(Movie movie) {
+
+            _context.Movie.Add(movie);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
         }
     }
 }

@@ -4,32 +4,54 @@
 
 @model IEnumerable<bai1.Models.Movie>
 
-
 <div class="text-center">
     <h1 class="display-4">Movie Management System</h1>
-    
 </div>
 
-<div class=""> 
-    @if (Model == null || !Model.Any())
+<button id="idAddMovieClick" class="btn btn-primary" onclick="ShowAddForm()"> Add Movie </button>
+<div class="d-none " id="idAddForm" style="margin: 0 auto; padding: 20px; width:40%">
+        <h3 class="text-center"> Create new movie</h3>
+        <form method="post" asp-action="Add" >
+            <div class="mb-3 d-flex justify-content-between">
+                <label for="Title">Movie Title: </label>
+                <input type="text" id="Title" name="Title" required />
+            </div>
+            <div class="mb-3 d-flex justify-content-between">
+                <label for="Description">Movie Description: </label>
+                <textarea id="Description" name="Description"></textarea> 
+            </div>
+            <input type="submit" class="btn btn-success d-block mx-auto" />
+        </form>
+</div>
+@if (Model == null || !Model.Any())
+{
+    <div class="text-center ">
+        <h3 class="display-4 text-warning bg-dark"> No movie found </h3>
+    </div>
+}
+else
+{
+    @foreach (var movie in Model)
     {
-        <div class="text-center ">
-            <h3 class="display-4 text-warning bg-dark"> No movie found </h3>
-            <button class="btn btn-primary" onclick=""> Add Movie </button>
+        <div>
+            Movie List
+            <h3> ID: @movie.Id </h3>
+            <h3> Movie name: @movie.Title  </h3>
+            <h3> Movie rate: @movie.Rate  </h3>
         </div>
     }
-    else
-    {
+}
 
-        @foreach (var movie in Model)
-        {
-            <div>
-                Movie List
-                <h3> ID: @movie.Id </h3>
-                <h3> Movie name: @movie.Title  </h3>
-                <h3> Movie rate: @movie.Rate  </h3>
-            </div>
+<script>
+    function ShowAddForm () {
+        var btn = document.getElementById('idAddMovieClick');
+        var formElement = document.getElementById('idAddForm');
+        formElement.classList.toggle('d-none');
+
+        if (formElement.classList.contains('d-none')) {
+            btn.innerText = "Add Movie";
+        } else {
+            btn.innerText = "Hide Form";
         }
     }
-    
-</div>
+</script>

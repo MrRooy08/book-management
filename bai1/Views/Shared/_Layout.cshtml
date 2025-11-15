@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - bai1</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/bai1.styles.css" asp-append-version="true" />
+
 </head>
 <body>
     <header>
@@ -26,6 +28,37 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Movie" asp-action="Index">Movie Management</a>
                         </li>
                     </ul>
+
+                    @{
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            <div style="position: relative; display: inline-block; right: 20px; padding: 4px; top: 10px;">
+                                <div class="d-inline-flex gap-3">
+                                    <span style="cursor: pointer;"><i class="fa-solid fa-cart-shopping"></i></span>
+                                    <p> @User.Identity.Name <i id="userDropdownToggle" class="fa-solid fa-caret-down" style="cursor: pointer;"></i> </p>
+                                </div>
+                                <ul class="custom_dropdown">
+                                    <li><a asp-controller="Book" asp-action="Index"><i class="fa-solid fa-book-bible"></i> Manage </a></li>
+                                    <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
+                                    <li><a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a></li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary btn-lg" id="getStartedBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                Get Started
+                            </button>
+                            <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div id="modalBody">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
                 </div>
             </div>
         </nav>
