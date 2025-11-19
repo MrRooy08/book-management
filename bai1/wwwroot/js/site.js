@@ -128,45 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-let currentStep = 1; 
 
-function showStep(step) {
-
-    const currentDiv = document.getElementById(`step-${step}`);
-    const inputs = currentDiv.querySelectorAll("input");
-
-    for (let input of inputs) {
-        if (input.value.trim() === "") {
-            alert("Please fill all fields before proceeding.");
-            input.focus();
-            return;
-        }
-    }
-
-
-
-    document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
-    currentDiv.classList.add("active");
-
-    document.querySelectorAll(".step-item").forEach(s => s.classList.remove("active"));
-    document.getElementById(`indicator-${step}`).classList.add("active");
-
-}
-
-
-function nextStep() {
-    if (currentStep < 3) {
-        currentStep++;
-        showStep(currentStep);
-    }
-}
-
-function prevStep() {
-    if (currentStep >= 1) {
-        currentStep--;
-        showStep(currentStep);
-    }
-}
 
 
 

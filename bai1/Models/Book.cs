@@ -23,12 +23,17 @@ namespace bai1.Models
         public string? ShortDescription { get; set; }
         public string? Description { get; set; }
 
+
+        //Gia goc
         [Required]
         public decimal ListPrice { get; set; }
 
+
+        // Gia ban
         [Required]
         public  decimal SalePrice { get; set; }
 
+        //Gia von 
         [Required]
         public decimal CostPrice { get; set; }
 
