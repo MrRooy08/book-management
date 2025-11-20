@@ -25,55 +25,65 @@ namespace bai1.Controllers
         public async Task<IActionResult> AddBook(BookAuthorsViewModels models) {
             var authors = JsonSerializer.Deserialize<List<AuthorDto>>(models.AuthorIds);
             Console.WriteLine(authors);
-            if (!ModelState.IsValid) {
+            if (ModelState.IsValid) {
 
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try {
                     var listAuthors = authors?
-                    .Where(author =>!string.IsNullOrEmpty(author.Name))
-                    .Select(author => new { Id = author.Id, Name = author.Name })
+                    .Where(author => author.Id != null && !string.IsNullOrEmpty(author.Name) )
+                    .Select(author => int.Parse(author.Id))
+                    .ToList();
+                    var newAuthors = authors?
+                    .Where(author => author.Id == null && !string.IsNullOrEmpty(author.Name))
+                    .Select(author => new Person { Name = author.Name })
                     .ToList();
 
-                    if (listAuthors.Count > 0) {
-                        var submittedIds = listAuthors.Select(a => a.Id).ToList();
-                        var notValidExistingAuthors = _context.Persons
-                            .Where(p => !submittedIds.Contains(p.Id))
-                            .Select(p => p.Name)
-                            .ToList();
-
-                        if (notValidExistingAuthors.Count > 0) {
-                            _context.Persons.AddRange(notValidExistingAuthors.Select(
-                                Name => new Person { Name = Name }
-                            ));
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-
-                    Book book = new Book
+                    var finalAuthors = new List<Person>();
+                    if (newAuthors!.Count > 0)
                     {
-                        ISBN = models.ISBN,
-                        Title = models.Title,
-                        Description = models.Description,
-                        PublishDate = models.PublishDate,
-                        CostPrice = (decimal)models.CostPrice,
-                        ListPrice = (decimal)models.ListPrice,
-                        SalePrice = (decimal)models.SalePrice,
-                        Author = authors!.Select(a => new BookAuthors
+                        _context.Persons.AddRange(newAuthors);
+                        await _context.SaveChangesAsync();
+                        finalAuthors.AddRange(newAuthors);
+                    }
+                    if (listAuthors!.Count > 0) {
+                        var existedAuthors = _context.Persons
+                            .Where(p => listAuthors.Contains(p.Id))
+                            .Select(p => new Person { Id = p.Id })
+                            .ToList();
+                        finalAuthors.AddRange(existedAuthors);
+                        Book book = new Book
                         {
-                            AuthorId = a.Id,
-                        }).ToList()
-                    };
-                    _context.Books.Add(book);
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    return RedirectToAction("Index");
+                            ISBN = models.ISBN,
+                            Title = models.Title,
+                            Description = models.Description,
+                            PublishDate = models.PublishDate,
+                            CostPrice = (decimal)models.CostPrice,
+                            ListPrice = (decimal)models.ListPrice,
+                            SalePrice = (decimal)models.SalePrice,
+                            Author = finalAuthors.Select(author => new BookAuthors
+                            {
+                                AuthorId = author.Id,
+                            }).ToList(),
+                            
+                        };
+                        _context.Books.Add(book);
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        return RedirectToAction("Index");
+                    }
                 } catch (Exception ex) {
                     await transaction.RollbackAsync();
                     ModelState.AddModelError(string.Empty, ex.Message);
+                    var errorModel = new ErrorViewModel
+                    {
+                        RequestId = HttpContext.TraceIdentifier,
+                        Message = ex.Message
+                    };
+                    return View("Error", errorModel);
                 }
                 
             }
-            return View();
+            return RedirectToAction("Index");
         }
     }
 }

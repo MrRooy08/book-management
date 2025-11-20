@@ -1,4 +1,6 @@
-﻿namespace bai1.Models.Dto
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace bai1.Models.Dto
 {
     public class BookAuthorsViewModels
     {
@@ -22,9 +24,8 @@
 
         public int Inventory { get; set; }
 
+        [Required]
         public string AuthorIds { get; set; }
-
-        public bool PublishNow { get; set; }
 
     }
 }
