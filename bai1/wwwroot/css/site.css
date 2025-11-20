@@ -56,6 +56,14 @@ body {
 
 
 /*Setting Step indicator*/
+.step {
+    display: none;
+}
+
+.step.active {
+        display: block;
+}
+
 .step-indicator {
     gap: 10px;
 }
@@ -71,4 +79,6 @@ body {
     padding: 10px;
     color: #999;
 }
+
+
 

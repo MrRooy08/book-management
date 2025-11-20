@@ -20,21 +20,23 @@ namespace bai1.Controllers
         public IActionResult Search(string name) {
 
             var authors = _context.Persons.Where(
-                    p => p.Name == name
-            ).FirstOrDefault();
+                    p => p.Name.Contains(name)
+            ).ToList();
 
             if (authors != null) { 
                 return Json ( new
                 {
                     isSuccess = true,
                     messsage = "Success",
-                    data = new { authors}
+                    data = new { authors}   
                 });
-            } 
+            }
 
-            return Json(new { 
+            return Json(new
+            {
                 isSuccess = false,
-                message = "Cannot find any authors in your request"
+                message = "Cannot find any authors in your request",
+                data = new { authors}
             });
         }
 

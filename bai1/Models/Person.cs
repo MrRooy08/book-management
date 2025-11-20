@@ -2,7 +2,7 @@
 
 namespace bai1.Models
 {
-    public class Person
+    public class    Person
     {
         [Key]
         public int Id { get; set; }
