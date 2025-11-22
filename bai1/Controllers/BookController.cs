@@ -25,6 +25,7 @@ namespace bai1.Controllers
         public async Task<IActionResult> AddBook(BookAuthorsViewModels models) {
             var authors = JsonSerializer.Deserialize<List<AuthorDto>>(models.AuthorIds);
             Console.WriteLine(authors);
+           
             if (ModelState.IsValid) {
 
                 using var transaction = await _context.Database.BeginTransactionAsync();
@@ -50,27 +51,27 @@ namespace bai1.Controllers
                             .Where(p => listAuthors.Contains(p.Id))
                             .Select(p => new Person { Id = p.Id })
                             .ToList();
-                        finalAuthors.AddRange(existedAuthors);
-                        Book book = new Book
-                        {
-                            ISBN = models.ISBN,
-                            Title = models.Title,
-                            Description = models.Description,
-                            PublishDate = models.PublishDate,
-                            CostPrice = (decimal)models.CostPrice,
-                            ListPrice = (decimal)models.ListPrice,
-                            SalePrice = (decimal)models.SalePrice,
-                            Author = finalAuthors.Select(author => new BookAuthors
-                            {
-                                AuthorId = author.Id,
-                            }).ToList(),
-                            
-                        };
-                        _context.Books.Add(book);
-                        await _context.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                        return RedirectToAction("Index");
+                        finalAuthors.AddRange(existedAuthors);                       
                     }
+                    Book book = new Book
+                    {
+                        ISBN = models.ISBN,
+                        Title = models.Title,
+                        Description = models.Description,
+                        PublishDate = models.PublishDate,
+                        CostPrice = (decimal)models.CostPrice,
+                        ListPrice = (decimal)models.ListPrice,
+                        SalePrice = (decimal)models.SalePrice,
+                        Author = finalAuthors.Select(author => new BookAuthors
+                        {
+                            AuthorId = author.Id,
+                        }).ToList(),
+
+                    };
+                    _context.Books.Add(book);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return RedirectToAction("Index");
                 } catch (Exception ex) {
                     await transaction.RollbackAsync();
                     ModelState.AddModelError(string.Empty, ex.Message);
