@@ -122,6 +122,21 @@ function renderSelectedAuthors() {
     suggestionBox.style.display = authorSelected.length > 0 ? 'block' : 'none';
 }
 
+    const fileInput = document.getElementById('book-cover');
+    const previewArea = document.getElementById('preview-area');
+    const changeText = document.getElementById('text-upload');
+    fileInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+          const imageUrl = URL.createObjectURL(file);
+          previewArea.innerHTML = `
+            <div class="preview-box">
+                <img src="${imageUrl}" alt="Preview" class="preview-image">
+                    <p class="file-name">${file.name}</p>
+            </div>
+              `;
+        changeText.innerText = 'Change Image';
+    }});
 
 let currentStep = 1;
 

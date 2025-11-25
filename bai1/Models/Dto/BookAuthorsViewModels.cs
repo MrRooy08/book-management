@@ -13,6 +13,17 @@ namespace bai1.Models.Dto
 
         public DateTime PublishDate { get; set; }
 
+        public float Length { get; set; }
+        public float Width { get; set; }
+        public float Height { get; set; }
+        public float Weight { get; set; }
+
+        public string Format { get; set; }
+
+        public int PageCount { get; set; }
+
+        public string Language { get; set; }
+
         //Gia goc
         public float ListPrice { get; set; }
 

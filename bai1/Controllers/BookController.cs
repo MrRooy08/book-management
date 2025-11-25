@@ -1,8 +1,11 @@
 ﻿using bai1.Models;
 using bai1.Models.Dto;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace bai1.Controllers
@@ -22,12 +25,11 @@ namespace bai1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddBook(BookAuthorsViewModels models) {
+        public async Task<IActionResult> AddBook(BookAuthorsViewModels models, IFormFile image) {
             var authors = JsonSerializer.Deserialize<List<AuthorDto>>(models.AuthorIds);
             Console.WriteLine(authors);
            
             if (ModelState.IsValid) {
-
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try {
                     var listAuthors = authors?
@@ -38,6 +40,8 @@ namespace bai1.Controllers
                     .Where(author => author.Id == null && !string.IsNullOrEmpty(author.Name))
                     .Select(author => new Person { Name = author.Name })
                     .ToList();
+
+                    var imageName = image.FileName != null ? image.FileName : "" ;
 
                     var finalAuthors = new List<Person>();
                     if (newAuthors!.Count > 0)
@@ -53,12 +57,35 @@ namespace bai1.Controllers
                             .ToList();
                         finalAuthors.AddRange(existedAuthors);                       
                     }
+
+                    if (image != null)
+                    {
+                        string nameFile = Directory.GetCurrentDirectory();
+                        nameFile += @"\wwwroot\Images\" + imageName;
+                        FileStream fs = new FileStream(nameFile, FileMode.Create);
+                        image.CopyTo(fs);
+                        fs.Close();
+                    }
                     Book book = new Book
                     {
                         ISBN = models.ISBN,
                         Title = models.Title,
                         Description = models.Description,
                         PublishDate = models.PublishDate,
+                        Dimensions = new BookDimensions
+                        {
+                            Height = models.Height,
+                            Length = models.Length,
+                            Width = models.Width
+                         },
+                        Images = new List<BookImage>() { 
+                            new BookImage { 
+                                ImageUrl = imageName
+                            }
+                        },
+                        Weight = models.Weight,
+                        Language = models.Language,
+                        Format = models.Format,
                         CostPrice = (decimal)models.CostPrice,
                         ListPrice = (decimal)models.ListPrice,
                         SalePrice = (decimal)models.SalePrice,
@@ -66,8 +93,7 @@ namespace bai1.Controllers
                         {
                             AuthorId = author.Id,
                         }).ToList(),
-
-                    };
+                    };                                  
                     _context.Books.Add(book);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();

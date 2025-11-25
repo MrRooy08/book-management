@@ -15,7 +15,6 @@ namespace bai1.Models
         [Required]
         [Column(TypeName = "nvarchar(100)")]
         public string Title { get; set; }
-        public string? Size { get; set; }
         public string? Language { get; set; }
         public DateTime PublishDate { get; set; }
         public int PageCount { get; set; }
@@ -40,10 +39,11 @@ namespace bai1.Models
         [Column(TypeName = "nvarchar(100)")]
         public string? Format { get; set; }
 
+        public BookDimensions Dimensions { get; set; }
 
         public ICollection<Inventory> Inventories { get; set; }
         public ICollection<Category>? Categories { get; set; }
-        public ICollection<BookImage>? Images { get; set; }
+        public ICollection<BookImage>? Images { get; set; } = new List<BookImage>();
 
         [Required]
         public  ICollection<Publisher> Publisher { get; set; }
