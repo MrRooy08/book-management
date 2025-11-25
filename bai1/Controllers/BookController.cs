@@ -83,6 +83,7 @@ namespace bai1.Controllers
                                 ImageUrl = imageName
                             }
                         },
+                        PageCount = models.PageCount,
                         Weight = models.Weight,
                         Language = models.Language,
                         Format = models.Format,
