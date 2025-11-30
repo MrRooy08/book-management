@@ -13,11 +13,14 @@ namespace bai1.Models
         public string? Slug { get; set; }
 
         // Cột cho Phân cấp (Tùy chọn)
+        // column for hirarchy (Optional)
         public int? ParentId { get; set; } // FK tự tham chiếu
-        public Category? ParentCategory { get; set; }
-        public ICollection<Category>? Children { get; set; }
 
-        // Mối quan hệ M:N với Book
+        [ForeignKey("ParentId")]
+        public Category? ParentCategory { get; set; }
+        public ICollection<Category>? SubCategories { get; set; }
+
+        // relationship many-many with Book
         public ICollection<Book> Books { get; set; } = new List<Book>();
     }
 }

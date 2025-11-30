@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace bai1.Controllers
 {
-    public class AuthorController : Controller
+    public class TranslatorController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public AuthorController(ApplicationDbContext context) {
+        public TranslatorController(ApplicationDbContext context)
+        {
             _context = context;
         }
 
@@ -17,18 +18,20 @@ namespace bai1.Controllers
             return View();
         }
 
-        public IActionResult Search(string name) {
+        public IActionResult Search(string name)
+        {
 
-            var authors = _context.Persons.Where(
+            var translators = _context.Persons.Where(
                     p => p.Name.Contains(name)
             ).ToList();
 
-            if (authors != null) { 
-                return Json ( new
+            if (translators != null)
+            {
+                return Json(new
                 {
                     isSuccess = true,
                     messsage = "Success",
-                    data = new { authors}   
+                    data = new { translators }
                 });
             }
 
@@ -36,7 +39,7 @@ namespace bai1.Controllers
             {
                 isSuccess = false,
                 message = "Cannot find any authors in your request",
-                data = new { authors}
+                data = new { translators }
             });
         }
 
@@ -54,7 +57,8 @@ namespace bai1.Controllers
                 {
                     isSuccess = true,
                     messsage = "Success",
-                    data = new { 
+                    data = new
+                    {
                         Id = models.Id,
                         name = models.Title,
                     }

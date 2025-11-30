@@ -39,18 +39,23 @@ namespace bai1.Models
         [Column(TypeName = "nvarchar(100)")]
         public string? Format { get; set; }
 
+        //refs
         public BookDimensions Dimensions { get; set; }
 
         public ICollection<Inventory> Inventories { get; set; }
-        public ICollection<Category>? Categories { get; set; }
+        public ICollection<Category>? Categories { get; set; } = new List<Category>();
         public ICollection<BookImage>? Images { get; set; } = new List<BookImage>();
 
+        public ICollection<BookAuthors> Authors { get; set; }
+        public ICollection<BookTranslators> Translators { get; set; }
+
+        
+        public Publisher Publisher { get; set; }
+
         [Required]
-        public  ICollection<Publisher> Publisher { get; set; }
-        [Required]
-        public  ICollection<BookAuthors> Author { get; set; }
-        [Required]
-        public ICollection<BookTranslators> Translator { get; set; }
+        [ForeignKey("Publisher")]
+        public int PublisherId { get; set; }
+
 
 
     }

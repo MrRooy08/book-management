@@ -27,6 +27,9 @@ namespace bai1.Models.Dto
         //Gia goc
         public float ListPrice { get; set; }
 
+        public int CategoryIds { get; set; }
+        public int PublisherId { get; set; }
+
         //Gia von mua tu ncc
         public float CostPrice { get; set; }
 
@@ -37,6 +40,8 @@ namespace bai1.Models.Dto
 
         [Required]
         public string AuthorIds { get; set; }
+
+        public string TranslatorData { get; set; }
 
     }
 }
