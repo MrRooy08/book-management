@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
         validationSpans.forEach(span => span.textContent = '');
     });
 
-});
+});v
 
 document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('userDropdownToggle');
@@ -126,6 +126,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+
+
 
 
 
