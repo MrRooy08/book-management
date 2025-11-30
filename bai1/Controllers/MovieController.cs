@@ -11,18 +11,18 @@ namespace bai1.Controllers
             _context = context;    
         }
 
-        public IActionResult Index()
-        {
-            List<Movie> movies = _context.Movie.ToList();
-            return View(movies);
-        }
+        //public IActionResult Index()
+        //{
+        //    List<Movie> movies = _context.Movie.ToList();
+        //    return View(movies);
+        //}
 
-        [HttpPost]
-        public IActionResult Add(Movie movie) {
+        //[HttpPost]
+        //public IActionResult Add(Movie movie) {
 
-            _context.Movie.Add(movie);
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
+        //    _context.Movie.Add(movie);
+        //    _context.SaveChanges();
+        //    return RedirectToAction("Index");
+        //}
     }
 }

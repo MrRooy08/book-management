@@ -1,7 +1,5 @@
 ﻿using bai1.Models;
 using bai1.Models.Dto;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +31,7 @@ namespace bai1.Controllers
 
             var parentCats = _context.Categories.Where(c => c.ParentId == null).ToList();
 
-            var translatorList = await _context.Persons.Where(p => p.BookTranslators.Count > 0)
+            var translatorList = await _context.Persons.Where(p => p.BookTranslators.Count >0)
                 .Select(p => new { p.Id, p.Name })
                 .ToListAsync();
             var publisherList = await _context.Publishers.ToListAsync();
@@ -58,17 +56,72 @@ namespace bai1.Controllers
 
             return Json(subCategories); // Trả về JSON để JavaScript đọc
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var book = await _context.Books
+                .Include(b => b.Images)
+                .Include(b => b.Authors)
+                .ThenInclude(ba => ba.Author)
+                .Include(b => b.Publisher)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null) return NotFound();
+
+            var primary = book.Images?.FirstOrDefault(i => i.IsPrimary) ?? book.Images?.FirstOrDefault();
+            var discount =0m;
+            if (book.ListPrice >0)
+            {
+                discount = ((book.ListPrice - book.SalePrice) / book.ListPrice) *100;
+            }
+
+            var model = new BookDetailsViewModel
+            {
+                Book = book,
+                PrimaryImageUrl = primary?.ImageUrl,
+                DiscountPercent = discount
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddToCart(int bookId, int quantity =1)
+        {
+            var book = _context.Books.Include(b => b.Images).FirstOrDefault(b => b.Id == bookId);
+            if (book == null) return NotFound();
+
+            var cart = HttpContext.Session.GetString("cart");
+            List<CartItem> items;
+            if (string.IsNullOrEmpty(cart)) items = new List<CartItem>();
+            else items = JsonSerializer.Deserialize<List<CartItem>>(cart) ?? new List<CartItem>();
+
+            var existing = items.FirstOrDefault(i => i.BookId == bookId);
+            if (existing != null)
+            {
+                existing.Quantity += quantity;
+            }
+            else
+            {
+                items.Add(new CartItem { BookId = book.Id, Title = book.Title, Price = book.SalePrice, Quantity = quantity, ImageUrl = book.Images?.FirstOrDefault()?.ImageUrl });
+            }
+
+            HttpContext.Session.SetString("cart", JsonSerializer.Serialize(items));
+            return RedirectToAction("Details", new { id = bookId });
+        }
+
         private async Task<List<Person>> ProcessPersonDataAsync(string jsonInput)
         {
             if (string.IsNullOrEmpty(jsonInput)) return new List<Person>();
 
-            // 1. Deserialize
+            //1. Deserialize
             var inputList = JsonSerializer.Deserialize<List<PersonInputDto>>(jsonInput) ?? new List<PersonInputDto>();
             var finalPersons = new List<Person>();
 
-            // 2. Lọc & Lấy những người CŨ (Đã có ID)
+            //2. Lọc & Lấy những người CŨ (Đã có ID)
             var existingIds = inputList
-                .Where(x => x.Id != 0) // Id is now an int
+                .Where(x => x.Id !=0) // Id is now an int
                 .Select(x => x.Id)
                 .ToList();
 
@@ -80,11 +133,11 @@ namespace bai1.Controllers
                 finalPersons.AddRange(existingPersons);
             }
 
-            // 3. Lọc & Tạo những người MỚI (Chưa có ID)
+            //3. Lọc & Tạo những người MỚI (Chưa có ID)
             var newNames = inputList
-                .Where(x => x.Id == 0 && !string.IsNullOrWhiteSpace(x.Name)) // Id is now an int
+                .Where(x => x.Id ==0 && !string.IsNullOrWhiteSpace(x.Name)) // Id is now an int
                 .Select(x => x.Name)
-                .Distinct() // Tránh tạo trùng tên trong cùng 1 lần submit
+                .Distinct() // Tránh tạo trùng tên trong cùng1 lần submit
                 .ToList();
 
             if (newNames.Any())
@@ -101,77 +154,82 @@ namespace bai1.Controllers
             return finalPersons;
         }
 
-                [HttpPost]
-                public async Task<IActionResult> AddBook(BookAuthorsViewModels models, IFormFile image) {
-                    if (ModelState.IsValid) {
-                        using var transaction = await _context.Database.BeginTransactionAsync();
-                        try {
-                            var author = await ProcessPersonDataAsync(models.AuthorIds);
-                            var translators = await ProcessPersonDataAsync(models.TranslatorData);
-        
-                            var imageName = image.FileName != null ? image.FileName : "" ;
-        
-                            if (image != null)
-                            {
-                                string nameFile = Directory.GetCurrentDirectory();
-                                nameFile += @"\wwwroot\Images\" + imageName;
-                                FileStream fs = new FileStream(nameFile, FileMode.Create);
-                                image.CopyTo(fs);
-                                fs.Close();
-                            }
-                            Book book = new Book
-                            {
-                                ISBN = models.ISBN,
-                                Title = models.Title,
-                                Description = models.Description,
-                                PublishDate = models.PublishDate,
-                                Dimensions = new BookDimensions
-                                {
-                                    Height = models.Height,
-                                    Length = models.Length,
-                                    Width = models.Width
-                                },
-                                Images = new List<BookImage>() {
-                                    new BookImage {
-                                        ImageUrl = imageName
-                                    }
-                                },
-                                PageCount = models.PageCount,
-                                Weight = models.Weight,
-                                Language = models.Language,
-                                Format = models.Format,
-                                CostPrice = (decimal)models.CostPrice,
-                                ListPrice = (decimal)models.ListPrice,
-                                SalePrice = (decimal)models.SalePrice,
-                                PublisherId = models.PublisherId,
-                                Authors = author.Select(a => new BookAuthors { AuthorId = a.Id }).ToList(),
-                                Translators = translators.Select(t => new BookTranslators { TranslatorId = t.Id }).ToList(),
-                            };
-                            var selectedCategory = _context.Categories.Find(models.CategoryIds);
-        
-                            // 3. Nếu tìm thấy, thêm vào danh sách Categories của cuốn sách đó
-                            if (selectedCategory != null)
-                            {
-                                book.Categories.Add(selectedCategory);
-                            }
-                            _context.Books.Add(book);
-                            await _context.SaveChangesAsync();
-                            await transaction.CommitAsync();
-                            return RedirectToAction("Index");
-                        } catch (Exception ex) {
-                            await transaction.RollbackAsync();
-                            ModelState.AddModelError(string.Empty, ex.Message);
-                            var errorModel = new ErrorViewModel
-                            {
-                                RequestId = HttpContext.TraceIdentifier,
-                                Message = ex.Message
-                            };
-                            return View("Error", errorModel);
-                        }
-                        
+        [HttpPost]
+        public async Task<IActionResult> AddBook(BookAuthorsViewModels models, IFormFile image)
+        {
+            if (ModelState.IsValid)
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    var author = await ProcessPersonDataAsync(models.AuthorIds);
+                    var translators = await ProcessPersonDataAsync(models.TranslatorData);
+
+                    var imageName = image?.FileName ?? string.Empty;
+
+                    if (image != null)
+                    {
+                        string nameFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", imageName);
+                        await using var fs = new FileStream(nameFile, FileMode.Create);
+                        await image.CopyToAsync(fs);
                     }
+
+                    Book book = new Book
+                    {
+                        ISBN = models.ISBN,
+                        Title = models.Title,
+                        Description = models.Description,
+                        PublishDate = models.PublishDate,
+                        Dimensions = new BookDimensions
+                        {
+                            Height = models.Height,
+                            Length = models.Length,
+                            Width = models.Width
+                        },
+                        Images = new List<BookImage>() {
+                            new BookImage {
+                                ImageUrl = imageName
+                            }
+                        },
+                        PageCount = models.PageCount,
+                        Weight = models.Weight,
+                        Language = models.Language,
+                        Format = models.Format,
+                        CostPrice = (decimal)models.CostPrice,
+                        ListPrice = (decimal)models.ListPrice,
+                        SalePrice = (decimal)models.SalePrice,
+                        PublisherId = models.PublisherId,
+                        Authors = author.Select(a => new BookAuthors { AuthorId = a.Id }).ToList(),
+                        Translators = translators.Select(t => new BookTranslators { TranslatorId = t.Id }).ToList(),
+                    };
+                    var selectedCategory = _context.Categories.Find(models.CategoryIds);
+
+                    //3. Nếu tìm thấy, thêm vào danh sách Categories của cuốn sách đó
+                    if (selectedCategory != null)
+                    {
+                        book.Categories.Add(selectedCategory);
+                    }
+                    _context.Books.Add(book);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
                     return RedirectToAction("Index");
-                }    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                    var errorModel = new ErrorViewModel
+                    {
+                        RequestId = HttpContext.TraceIdentifier,
+                        Message = ex.Message
+                    };
+                    return View("Error", errorModel);
+                }
+
+            }
+            return RedirectToAction("Index");
+        }
+    }
 }
 
 

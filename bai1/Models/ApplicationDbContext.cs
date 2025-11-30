@@ -8,8 +8,6 @@ namespace bai1.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
             
         }
-
-        public DbSet<Movie> Movie { get; set; } = default!;
         public DbSet<User> Users { get; set; } = default!;
         public DbSet<Role> Roles { get; set; } = default!;
         public DbSet<Book> Books { get; set; } = default!;

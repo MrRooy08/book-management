@@ -17,7 +17,7 @@ document.addEventListener('submit', function (event) {
     xhr.onload = function () {
         console.log("Status:", xhr.status);
         console.log("Content-Type:", xhr.getResponseHeader("Content-Type"));
-        if (xhr.status === 200) {
+        if (xhr.status ===200) {
             try {
                 const result = JSON.parse(xhr.responseText);
                 console.log("Result", result);
@@ -44,7 +44,6 @@ document.addEventListener('submit', function (event) {
         }
     }
 
-    
     console.log(formData);
     xhr.send(formData);
 });
@@ -52,30 +51,40 @@ document.addEventListener('submit', function (event) {
 document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('loginModal');
 
-    modal.addEventListener('show.bs.modal', function () {
-        const form = modal.querySelector('form');
-        if (form) {
-            form.reset();
-        }
+    if (modal) {
+        // When modal shows, clear previous content and load login partial if empty
+        modal.addEventListener('show.bs.modal', function () {
+            const form = modal.querySelector('form');
+            if (form) {
+                form.reset();
+            }
 
-        const validationSpans = modal.querySelectorAll('.text-danger');
-        validationSpans.forEach(span => span.textContent = '');
-    });
+            const validationSpans = modal.querySelectorAll('.text-danger');
+            validationSpans.forEach(span => span.textContent = '');
 
-});v
+            const modalBody = document.getElementById('modalBody');
+            // If modal body is empty, load the login partial automatically
+            if (modalBody && modalBody.innerHTML.trim() === '') {
+                loadPartial('/Account/LoginPartial');
+            }
+        });
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('userDropdownToggle');
 
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function () {
-            document.querySelector('.custom_dropdown').classList.toggle('show');
+            const dropdown = document.querySelector('.custom_dropdown');
+            if (dropdown) dropdown.classList.toggle('show');
         });
     }
 });
 
 async function loadPartial(url) {
     const modalBody = document.getElementById('modalBody') || document.getElementById('modalLabel');
+    if (!modalBody) return;
     modalBody.innerHTML = '<p>Loading...</p>';
     try {
         const response = await fetch(url, {
@@ -95,7 +104,7 @@ async function loadPartial(url) {
         console.log("Raw response:", modalBody.innerHTML);
         attachModalEvents();
     }
-    catch (e) { 
+    catch (e) {
         modalBody.innerHTML = '<p>Lỗi: ' + e.message + '</p>';
     }
 }
@@ -122,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', function () {
+            // ensure modal's body is loaded when user clicks
             loadPartial('/Account/LoginPartial');
         });
     }

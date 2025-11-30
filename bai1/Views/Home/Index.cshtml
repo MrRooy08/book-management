@@ -1,8 +1,406 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model bai1.Models.Dto.HomeIndexViewModel
+
+@{
+	ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewBag.Title</title>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+	<style>
+		:root {
+			--primary-color: #1e40af;
+			--secondary-color: #0369a1;
+			--accent-color: #f59e0b;
+			--danger-color: #dc2626;
+			--light-bg: #f8fafc;
+			--border-color: #e2e8f0;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: var(--light-bg);
+			color: #334155;
+		}
+
+		.navbar-custom {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+
+		.header-section {
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+			color: white;
+			padding: 40px 0;
+			margin-bottom: 30px;
+		}
+
+			.header-section h1 {
+				font-weight: 700;
+				margin-bottom: 10px;
+				font-size: 2.5rem;
+			}
+
+		.search-section {
+			background: white;
+			padding: 25px;
+			border-radius: 12px;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+			margin-bottom: 30px;
+		}
+
+		.search-form {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+			.search-form input {
+				flex: 1;
+				min-width: 250px;
+				padding: 12px 16px;
+				border: 2px solid var(--border-color);
+				border-radius: 8px;
+				font-size: 1rem;
+				transition: all 0.3s ease;
+			}
+
+				.search-form input:focus {
+					outline: none;
+					border-color: var(--primary-color);
+					box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+				}
+
+			.search-form button {
+				padding: 12px 28px;
+				background-color: var(--primary-color);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				font-weight: 600;
+				cursor: pointer;
+				transition: all 0.3s ease;
+			}
+
+				.search-form button:hover {
+					background-color: var(--secondary-color);
+					transform: translateY(-2px);
+					box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+				}
+
+		.book-card {
+			background: white;
+			border: 1px solid var(--border-color);
+			border-radius: 12px;
+			overflow: hidden;
+			transition: all 0.3s ease;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+		}
+
+			.book-card:hover {
+				transform: translateY(-8px);
+				box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+				border-color: var(--primary-color);
+			}
+
+		.book-image {
+			width: 100%;
+			height: 250px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 3rem;
+			overflow: hidden;
+		}
+
+		.book-content {
+			padding: 20px;
+			flex-grow: 1;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		.book-title {
+			font-size: 1.1rem;
+			font-weight: 700;
+			color: var(--primary-color);
+			margin-bottom: 8px;
+			line-height: 1.4;
+			min-height: 2.8em;
+		}
+
+		.book-isbn {
+			font-size: 0.85rem;
+			color: #94a3b8;
+			margin-bottom: 8px;
+		}
+
+		.book-description {
+			font-size: 0.9rem;
+			color: #64748b;
+			margin-bottom: 12px;
+			line-height: 1.5;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+
+		.book-authors {
+			font-size: 0.85rem;
+			color: #475569;
+			margin-bottom: 8px;
+		}
+
+			.book-authors strong {
+				color: var(--primary-color);
+			}
+
+		.book-meta {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 12px;
+			flex-wrap: wrap;
+		}
+
+		.meta-badge {
+			display: inline-block;
+			background-color: #f1f5f9;
+			padding: 4px 10px;
+			border-radius: 6px;
+			font-size: 0.8rem;
+			color: #475569;
+		}
+
+		.book-price-section {
+			border-top: 1px solid var(--border-color);
+			padding-top: 12px;
+			margin-top: 12px;
+		}
+
+		.book-prices {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+		}
+
+		.price-item {
+			text-align: center;
+		}
+
+		.price-label {
+			font-size: 0.8rem;
+			color: #94a3b8;
+			margin-bottom: 4px;
+		}
+
+		.price-value {
+			font-size: 1.3rem;
+			font-weight: 700;
+			color: var(--primary-color);
+		}
+
+		.price-sale {
+			color: var(--accent-color);
+		}
+
+		.discount-badge {
+			background-color: var(--danger-color);
+			color: white;
+			padding: 2px 8px;
+			border-radius: 4px;
+			font-size: 0.8rem;
+			font-weight: 600;
+		}
+
+		.book-actions {
+			display: flex;
+			gap: 8px;
+			
+		}
+
+		.btn-view {
+			flex: 1;
+			padding: 10px;
+			background-color: var(--primary-color);
+			color: white;
+			border: none;
+			border-radius: 8px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			text-decoration: none;
+			text-align: center;
+		}
+
+			.btn-view:hover {
+				background-color: var(--secondary-color);
+				transform: translateY(-2px);
+			}
+
+		.stats-section {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 15px;
+			margin-bottom: 30px;
+		}
+
+		.stat-card {
+			background: white;
+			padding: 20px;
+			border-radius: 12px;
+			text-align: center;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+		}
+
+		.stat-number {
+			font-size: 2rem;
+			font-weight: 700;
+			color: var(--primary-color);
+		}
+
+		.stat-label {
+			font-size: 0.9rem;
+			color: #64748b;
+			margin-top: 5px;
+		}
+
+		.pagination {
+			margin-top: 40px;
+			justify-content: center;
+		}
+
+			.pagination .page-link {
+				color: var(--primary-color);
+				border-color: var(--border-color);
+			}
+
+				.pagination .page-link:hover {
+					background-color: var(--light-bg);
+					border-color: var(--primary-color);
+				}
+
+			.pagination .page-item.active .page-link {
+				background-color: var(--primary-color);
+				border-color: var(--primary-color);
+			}
+
+		.no-results {
+			text-align: center;
+			padding: 60px 20px;
+		}
+
+			.no-results i {
+				font-size: 3rem;
+				color: #cbd5e1;
+				margin-bottom: 20px;
+			}
+
+			.no-results p {
+				font-size: 1.2rem;
+				color: #94a3b8;
+			}
+
+
+		.search-form {
+			flex-direction: column;
+		}
+
+			.search-form input {
+				min-width: 100%;
+			}
+
+		.book-title {
+			font-size: 1rem;
+		}
+
+		}
+	</style>
+</head>
+
+<div class="header-section">
+	<div class="container">
+		<h1><i class="fas fa-book"></i> Kho Sách Điện Tử</h1>
+		<p>Khám phá bộ sưu tập sách đa dạng với hơn @Model.TotalBooks cuốn sách</p>
+	</div>
+</div>
+
+<div class="container">
+	<!-- Search -->
+	<div class="search-section mb-4">
+		<form method="get" action='@Url.Action("Index", "Home")' class="search-form">
+			<input type="text" name="searchTerm" placeholder="Tìm kiếm theo tiêu đề, ISBN hoặc mô tả..."
+				   value="@Model.SearchTerm" class="form-control" />
+			<button type="submit" class="btn btn-primary mt-2"><i class="fas fa-search"></i> Tìm Kiếm</button>
+			@if (!string.IsNullOrEmpty(Model.SearchTerm))
+			{
+				<a class="btn btn-secondary mt-2 ms-2" href='@Url.Action("Index", "Home")'>
+					<i class="fas fa-times"></i> Xóa
+				</a>
+			}
+		</form>
+	</div>
+
+	<!-- Books Grid -->
+	@await Html.PartialAsync("_BookGrid", Model.Books)
+
+	<!-- Pagination -->
+	@if (Model.TotalPages > 1)
+	{
+		<nav aria-label="Page navigation">
+			<ul class="pagination mt-3">
+				@if (Model.CurrentPage > 1)
+				{
+					<li class="page-item">
+						<a class="page-link" href='@Url.Action("Index", "Home", new { pageNumber = 1, searchTerm = Model.SearchTerm })'>
+							<i class="fas fa-chevron-left"></i> Đầu Tiên
+						</a>
+					</li>
+					<li class="page-item">
+						<a class="page-link" href='@Url.Action("Index", "Home", new { pageNumber = Model.CurrentPage - 1, searchTerm = Model.SearchTerm })'>
+							Trước
+						</a>
+					</li>
+				}
+
+				@for (int i = 1; i <= Model.TotalPages; i++)
+				{
+					if (i == Model.CurrentPage)
+					{
+						<li class="page-item active"><span class="page-link">@i</span></li>
+					}
+					else if (i < Model.CurrentPage + 3 && i > Model.CurrentPage - 3)
+					{
+						<li class="page-item">
+							<a class="page-link" href='@Url.Action("Index", "Home", new { pageNumber = i, searchTerm = Model.SearchTerm })'>@i</a>
+						</li>
+					}
+				}
+
+				@if (Model.CurrentPage < Model.TotalPages)
+				{
+					<li class="page-item">
+						<a class="page-link" href='@Url.Action("Index", "Home", new { pageNumber = Model.CurrentPage + 1, searchTerm = Model.SearchTerm })'>
+							Sau
+						</a>
+					</li>
+					<li class="page-item">
+						<a class="page-link" href='@Url.Action("Index", "Home", new { pageNumber = Model.TotalPages, searchTerm = Model.SearchTerm })'>
+							Cuối <i class="fas fa-chevron-right"></i>
+						</a>
+					</li>
+				}
+			</ul>
+		</nav>
+	}
 </div>

@@ -1,0 +1,118 @@
+﻿@model bai1.Models.Dto.BookDetailsViewModel
+
+@{
+	ViewData["Title"] = Model.Book?.Title ?? "Book Details";
+}
+
+<div class="container mt-4">
+	<div class="row g-4">
+		<div class="col-md-6">
+			<div class="card p-3" style="border-radius:8px;">
+				<div id="bookCarousel" class="carousel slide" data-bs-ride="carousel">
+					<div class="carousel-inner">
+						@if (Model.Book.Images != null && Model.Book.Images.Any())
+						{
+							int idx = 0;
+							foreach (var img in Model.Book.Images)
+							{
+								<div class="carousel-item @(idx == 0 ? "active" : "")">
+									<div class="d-flex align-items-center justify-content-center" style="height:420px;">
+										<img src="@Url.Content("~/Images/" + img.ImageUrl)" class="d-block" style="max-height:100%; max-width:100%; object-fit:contain;" />
+									</div>
+								</div>
+								idx++;
+							}
+						}
+						else
+						{
+							<div class="carousel-item active">
+								<div class="d-flex align-items-center justify-content-center" style="height:420px;">
+									<i class="fas fa-book" style="font-size:96px; color:#e6e6e6"></i>
+								</div>
+							</div>
+						}
+					</div>
+					@if (Model.Book.Images != null && Model.Book.Images.Count() > 1)
+					{
+						<button class="carousel-control-prev" type="button" data-bs-target="#bookCarousel" data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Previous</span>
+						</button>
+						<button class="carousel-control-next" type="button" data-bs-target="#bookCarousel" data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Next</span>
+						</button>
+					}
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<span class="badge  fw-medium"
+				  style="background-color: #efe3d3;
+												color: #1e4a78;
+										padding: 0.5em 0.8em;">
+				@Model.Book.Format
+			</span>
+
+			<span class="badge text-bg-primary">
+				-20%
+			</span>
+			<h2 class="fw-bold">@Model.Book.Title</h2>
+			<p class="text-muted mb-2"><i class="fa-regular fa-user"></i> by @string.Join(", ", Model.Book.Authors?.Select(a => a.Author?.Name) ?? new string[0])</p>
+
+			<div class="card p-3 mb-4" style="border-radius:8px;">
+				<div class="d-flex align-items-center justify-content-between">
+					<div>
+						<div class="text-muted" style="text-decoration: line-through;">@Model.Book.ListPrice.ToString("N2")đ</div>
+						<div class="fs-3 fw-bold text-warning">@Model.Book.SalePrice.ToString("N2")đ</div>
+					</div>
+					<div>
+						@if (Model.DiscountPercent > 0)
+						{
+							<span class="badge bg-warning text-dark">Save @Model.DiscountPercent.ToString("F0")%</span>
+						}
+					</div>
+				</div>
+
+				<p class="text-muted mt-2">Free shipping on orders over $50</p>
+				<form method="post" asp-action="AddToCart">
+					<div class="input-group mb-2">
+						<input type="hidden" name="bookId" value="@Model.Book.Id" />
+						<input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width:120px;" />
+						<button type="submit" class="btn btn-warning ms-2"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+					</div>
+				</form>
+			</div>
+
+			<h5>Description</h5>
+			<p class="text-muted">@Model.Book.Description</p>
+			<p class="text-muted">@Model.Book.ShortDescription</p>
+
+			<hr />
+
+			<h5>Book Details</h5>
+			<div class="row">
+				<div class="col-6">
+					<p class="mb-1"><strong><i class="fa-solid fa-book-open"></i> Pages</strong></p>
+					<p class="text-muted font-monospace fw-bold">@Model.Book.PageCount</p>
+
+					<p class="mb-1"><strong><i class="fa-solid fa-calendar"></i> Published</strong></p>
+					<p class="text-muted font-monospace fw-bold">@Model.Book.PublishDate.ToShortDateString()</p>
+
+					<p class="mb-1"><strong><i class="fa-solid fa-ruler"></i> Dimensions</strong></p>
+					<p class="text-muted font-monospace fw-bold">@Model.Book.Dimensions?.Length x @Model.Book.Dimensions?.Width x @Model.Book.Dimensions?.Height cm</p>
+
+					<p class="mb-1"><strong><i class="fa-solid fa-book-open"></i> ISBN</strong></p>
+					<p class="text-muted font-monospace fw-bold">@Model.Book.ISBN</p>
+				</div>
+				<div class="col-6">
+					<p class="mb-1"><strong><i class="fa-solid fa-language"></i> Language</strong></p>
+					<p class="text-muted font-monospace fw-bold" >@Model.Book.Language</p>
+
+					<p class="mb-1"><strong><i class="fa-solid fa-box"></i> Format</strong></p>
+					<p class="text-muted font-monospace fw-bold" >@Model.Book.Format</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -8,29 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/bai1.styles.css" asp-append-version="true" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: '#0d0d0d',
-                        foreground: '#fafafa',
-                        card: '#141414',
-                        border: '#262626',
-                        primary: '#3b82f6',
-                        muted: '#737373',
-                        success: '#22c55e',
-                        destructive: '#ef4444',
-                        accent: '#1a1a1a',
-                    }
-                }
-            }
-        }
-    </script>
-
 </head>
-<body>
+<body class="h-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow ">
             <div class="container-fluid">
@@ -45,7 +24,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Movie" asp-action="Index">Movie Management</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Index">Book Management</a>
                         </li>
                     </ul>
 

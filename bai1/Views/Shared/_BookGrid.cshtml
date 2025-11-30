@@ -1,0 +1,125 @@
+﻿@model IEnumerable<bai1.Models.Book>
+@using System.Linq
+
+@if (Model != null && Model.Any())
+{
+	<div class="row">
+		@foreach (var book in Model)
+		{
+			decimal discount = 0;
+			if (book.ListPrice > 0)
+			{
+				discount = ((book.ListPrice - book.SalePrice) / book.ListPrice) * 100;
+			}
+
+			<div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+				<div class="book-card">
+					<div class="d-flex align-items-start justify-content-between mb-4">
+						<span class="badge  fw-medium"
+							  style="background-color: #efe3d3;
+												color: #1e4a78;
+										padding: 0.5em 0.8em;">
+							@book.Format
+						</span>
+
+						<span class="badge text-bg-primary">
+							-20%
+						</span>
+					</div>
+					<div class="book-image"
+						 style="width:180px; height:240px; overflow:hidden; display:flex;
+				            align-items:center; justify-content:center; margin:0 auto;">
+						@{
+							var img = book.Images?.FirstOrDefault();
+							if (img != null && !string.IsNullOrEmpty(img.ImageUrl))
+							{
+								<img src="@Url.Content("~/Images/" + img.ImageUrl)"
+									 alt="@book.Title"
+									 style="width:100%; height:100%; object-fit:cover; object-position:center;" />
+							}
+							else
+							{
+								<i class="fas fa-book" style="font-size:48px; color:#cbd5e1;"></i>
+							}
+						}
+					</div>
+					<div class="book-content">
+						<h5 class="book-title">@book.Title.ToUpper()</h5>
+						<p class="book-isbn">ISBN: @book.ISBN</p>
+
+						@* @if (!string.IsNullOrEmpty(book.Description))
+						{
+							<p class="book-description">@book.Description</p>
+						} *@
+
+						@if (!string.IsNullOrEmpty(book.ShortDescription))
+						{
+							<p class="book-description">@book.ShortDescription</p>
+						}
+
+						@if (book.Authors != null && book.Authors.Any())
+						{
+							<p class="book-authors">
+								<strong>Tác giả:</strong> @string.Join(", ", book.Authors.Select(a => a.Author != null ? a.Author.Name : string.Empty))
+							</p>
+						}
+
+						@if (book.Translators != null && book.Translators.Any())
+						{
+							<p class="book-authors">
+								<strong>Dịch giả:</strong> @string.Join(", ", book.Translators.Select(t => t.Translator != null ? t.Translator.Name : string.Empty))
+							</p>
+						}
+
+						<div class="book-meta">
+							<span class="meta-badge"><i class="fas fa-calendar"></i> @book.PublishDate.ToShortDateString()</span>
+							<span class="meta-badge"><i class="fas fa-file"></i> @book.PageCount trang</span>
+							<span class="meta-badge"><i class="fas fa-globe"></i> @book.Language</span>
+						</div>
+
+						<div class="book-price-section">
+							<div class="book-prices">
+								<div class="price-item">
+									<div class="price-label">Giá niêm yết</div>
+									<div style="text-decoration: line-through; color: #94a3b8;">
+										@book.SalePrice.ToString("N0")đ
+									</div>
+								</div>
+								<div class="price-item">
+									<div class="price-label">Giá Bán</div>
+									<div class="price-value price-sale">
+										
+										@book.ListPrice.ToString("N0")đ
+									</div>
+								</div>
+								@if (discount > 0)
+								{
+									<div class="price-item">
+										<span class="discount-badge">-@discount.ToString("F0")%</span>
+									</div>
+								}
+							</div>
+
+							<div class="book-actions">
+								<a href='@Url.Action("Details", "Book", new { id = book.Id })' class="btn-view">
+									<i class="fas fa-eye"></i> Xem Chi Tiết
+								</a>
+								<button class="btn btn-primary btn-sm d-flex align-items-center gap-2 btn-gradient shadow-sm">
+									<i class="fa-solid fa-cart-shopping"></i>
+									Add
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="no-results">
+		<i class="fas fa-search"></i>
+		<p>Không tìm thấy sách nào phù hợp với tìm kiếm của bạn.</p>
+	</div>
+}
