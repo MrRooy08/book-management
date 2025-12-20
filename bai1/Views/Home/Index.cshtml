@@ -225,28 +225,37 @@
 
 		.book-actions {
 			display: flex;
-			gap: 8px;
-			
+			gap: 12px;
+			margin-top: 12px;
 		}
+
+			.book-actions a,
+			.book-actions button {
+				flex: 1;
+			}
 
 		.btn-view {
-			flex: 1;
-			padding: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			height: 44px;
+			padding: 0 12px;
 			background-color: var(--primary-color);
-			color: white;
-			border: none;
+			color: #fff;
 			border-radius: 8px;
 			font-weight: 600;
-			cursor: pointer;
-			transition: all 0.3s ease;
+			font-size: 14px;
 			text-decoration: none;
-			text-align: center;
+			transition: all 0.25s ease;
 		}
 
-			.btn-view:hover {
+
+
+			/* .btn-view:hover {
 				background-color: var(--secondary-color);
 				transform: translateY(-2px);
-			}
+			} */
 
 		.stats-section {
 			display: grid;
@@ -254,6 +263,24 @@
 			gap: 15px;
 			margin-bottom: 30px;
 		}
+
+		.btn-cart {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			height: 44px;
+			padding: 0 12px;
+			background: linear-gradient(135deg, #6f42c1, #845ef7);
+			color: #fff;
+			border: none;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			transition: all 0.25s ease;
+		}
+
 
 		.stat-card {
 			background: white;
@@ -325,17 +352,55 @@
 		}
 
 		}
+
 	</style>
 </head>
 
-<div class="header-section">
-	<div class="container">
-		<h1><i class="fas fa-book"></i> Kho Sách Điện Tử</h1>
-		<p>Khám phá bộ sưu tập sách đa dạng với hơn @Model.TotalBooks cuốn sách</p>
-	</div>
-</div>
+
+
 
 <div class="container">
+	<!-- Banner Slider -->
+	<div class="banner-slider">
+		<div class="slides">
+			<img src="/images/Banner1.jpg" class="slide active" alt="Banner 1">
+			<img src="/images/Banner2.jpg" class="slide" alt="Banner 2">
+			<img src="/images/Banner3.jpg" class="slide" alt="Banner 3">
+		</div>
+
+		<div class="banner-dots">
+			<span class="dot active"></span>
+			<span class="dot"></span>
+			<span class="dot"></span>
+		</div>
+	</div>
+	<script>
+		const slides = document.querySelectorAll(".slide");
+		const dots = document.querySelectorAll(".dot");
+		let currentIndex = 0;
+
+		function showSlide(index) {
+			slides.forEach((slide, i) => {
+				slide.classList.toggle("active", i === index);
+				dots[i].classList.toggle("active", i === index);
+			});
+		}
+
+		setInterval(() => {
+			currentIndex = (currentIndex + 1) % slides.length;
+			showSlide(currentIndex);
+		}, 4000);
+	</script>
+	<div class="header-section text-center text-white py-5" style="background: linear-gradient(135deg, #6f42c1, #3b82f6); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+		<div class="container">
+			<h1 style="font-size: 3rem; font-weight: 700; text-shadow: 2px 2px 8px rgba(0,0,0,0.3);">
+				<i class="fas fa-book-open me-2"></i> Kho Sách Điện Tử
+			</h1>
+			<p style="font-size: 1.25rem; color: #f0f0f0; text-shadow: 1px 1px 4px rgba(0,0,0,0.2);">
+				Khám phá bộ sưu tập sách đa dạng với hơn <span style="font-weight: 600; color: #ffe600;">@Model.TotalBooks</span> cuốn sách
+			</p>
+		</div>
+	</div>
 	<!-- Search -->
 	<div class="search-section mb-4">
 		<form method="get" action='@Url.Action("Index", "Home")' class="search-form">
@@ -350,7 +415,6 @@
 			}
 		</form>
 	</div>
-
 	<!-- Books Grid -->
 	@await Html.PartialAsync("_BookGrid", Model.Books)
 

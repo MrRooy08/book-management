@@ -229,6 +229,76 @@ namespace bai1.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var book = await _context.Books
+                .Include(b => b.Images)
+                .Include(b => b.Authors)
+                .ThenInclude(ba => ba.Author)
+                .Include(b => b.Publisher)
+                .Include(b => b.Categories)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null) return NotFound();
+
+            var parentCats = _context.Categories.Where(c => c.ParentId == null).ToList();
+            var publisherList = await _context.Publishers.ToListAsync();
+
+            ViewBag.PublisherList = new SelectList(publisherList, "Id", "Name", book.PublisherId);
+            ViewBag.ParentList = new SelectList(parentCats, "Id", "Name");
+
+            // Redirect to book management tab with edit mode
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var book = await _context.Books
+                .Include(b => b.Images)
+                .Include(b => b.Authors)
+                .Include(b => b.Translators)
+                .Include(b => b.Inventories)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null) return NotFound();
+
+            try
+            {
+                // Delete related images from file system
+                if (book.Images != null)
+                {
+                    foreach (var image in book.Images)
+                    {
+                        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", image.ImageUrl);
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
+                    }
+                }
+
+                // Remove related entities
+                _context.BookAuthors.RemoveRange(book.Authors);
+                _context.BookTranslators.RemoveRange(book.Translators);
+                _context.Inventories.RemoveRange(book.Inventories);
+
+                // Remove the book
+                _context.Books.Remove(book);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Book '{book.Title}' has been deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error deleting book: {ex.Message}";
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
 

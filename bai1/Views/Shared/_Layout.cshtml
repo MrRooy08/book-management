@@ -1,19 +1,23 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - bai1</title>
+    <title>@ViewData["Title"] - Thành Long Book</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/bai1.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Views/Shared/_Layout.cshtml.css" asp-append-version="true" />
 </head>
-<body class="h-100">
+<body class="h-100 d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow ">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">bai1</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/Logo.png" style="height:90px;" />
+                </a>
+                
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -21,61 +25,162 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Index">Book Management</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">Giới thiệu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Index">Sách</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Contact">Liên hệ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Event">Sự kiện</a>
                         </li>
                     </ul>
 
-                    @{
-                        if (User.Identity.IsAuthenticated)
-                        {
-                            <div style="position: relative; display: inline-block; right: 20px; padding: 4px; top: 10px;">
-                                <div class="d-inline-flex gap-3">
-                                    <span style="cursor: pointer;"><i class="fa-solid fa-cart-shopping"></i></span>
-                                    <p> @User.Identity.Name <i id="userDropdownToggle" class="fa-solid fa-caret-down" style="cursor: pointer;"></i> </p>
+                    <div class="d-flex align-items-center gap-3">
+                        @* Cart Button *@
+                        <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-primary position-relative">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            @{
+                                var cart = Context.Session.GetString("cart");
+                                int cartCount = 0;
+                                if (!string.IsNullOrEmpty(cart))
+                                {
+                                    var items = System.Text.Json.JsonSerializer.Deserialize<List<bai1.Models.CartItem>>(cart);
+                                    cartCount = items?.Sum(i => i.Quantity) ?? 0;
+                                }
+                            }
+                            @if (cartCount > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @cartCount
+                                </span>
+                            }
+                        </a>
+
+                        @{
+                            if (User.Identity.IsAuthenticated)
+                            {
+                                <div style="position: relative; display: inline-block; padding: 4px;">
+                                    <div class="d-inline-flex gap-2 align-items-center">
+                                        <p class="mb-0"> @User.Identity.Name <i id="userDropdownToggle" class="fa-solid fa-caret-down" style="cursor: pointer;"></i> </p>
+                                    </div>
+                                    <ul class="custom_dropdown">
+                                        <li><a asp-controller="Book" asp-action="Index"><i class="fa-solid fa-book-bible"></i> Manage </a></li>
+                                        <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
+                                        <li><a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a></li>
+                                    </ul>
                                 </div>
-                                <ul class="custom_dropdown">
-                                    <li><a asp-controller="Book" asp-action="Index"><i class="fa-solid fa-book-bible"></i> Manage </a></li>
-                                    <li><a href="#"><i class="fa-regular fa-user"></i> Profile</a></li>
-                                    <li><a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a></li>
-                                </ul>
-                            </div>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-primary btn-lg" id="getStartedBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
-                                Get Started
-                            </button>
-                            <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div id="modalBody">
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary" id="getStartedBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                    Đăng nhập/Đăng kí
+                                </button>
+                                <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div id="modalBody">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
                         }
-                    }
+                    </div>
                 </div>
             </div>
         </nav>
-    </header>
-    <div>
+
+
+
+    <div class="container mt-4 flex-grow-1">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - bai1 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="main-footer mt-auto">
+        <div class="container py-5">
+            <div class="row gy-4">
+                <div class="col-12 col-lg-4">
+                    <div class="footer-title">
+                        <span class="footer-title-bar"></span>
+                        Thông tin liên hệ
+                    </div>
+                    <div class="footer-content">
+                        <div class="company-name">Thành Long Book - Kho sách trực tuyến</div>
+                        <div class="tax-id">MST: 4444888</div>
+                        <div class="brand-tagline">Kết nối tri thức, lan tỏa văn hóa đọc.</div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>Địa chỉ: 180 Cao Lỗ, Quận 8, Thành Phố Hồ Chí Minh</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-phone"></i>
+                            <span>Hotline: 0767375429</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Email: support@thanhlongbook.com</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="footer-title">
+                        <span class="footer-title-bar"></span>
+                        Về chúng tôi
+                    </div>
+                    <ul class="footer-links">
+                        <li><i class="fa-solid fa-circle"></i><a asp-controller="Home" asp-action="About">Giới thiệu</a></li>
+                        <li><i class="fa-solid fa-circle"></i><a asp-controller="Book" asp-action="Index">Thư viện sách</a></li>
+                        <li><i class="fa-solid fa-circle"></i><a asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="footer-title">
+                        <span class="footer-title-bar"></span>
+                        Hỗ trợ
+                    </div>
+                    <ul class="footer-links">
+                        <li><i class="fa-solid fa-circle"></i><a href="#">Hướng dẫn mua hàng</a></li>
+                        <li><i class="fa-solid fa-circle"></i><a href="#">Chính sách đổi trả</a></li>
+                        <li><i class="fa-solid fa-circle"></i><a href="#">Bảo mật thông tin</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-4">
+                    <div class="footer-title">
+                        <span class="footer-title-bar"></span>
+                        Kết nối với chúng tôi
+                    </div>
+                    <div class="footer-social d-flex gap-3 mt-3">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top py-3">
+            <div class="container text-center">
+                <span>&copy; @DateTime.Now.Year - Thành Long Book. All rights reserved.</span>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
+

@@ -1,0 +1,193 @@
+﻿@{
+    ViewData["Title"] = "Liên hệ";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4 fw-bold">@ViewData["Title"]</h1>
+
+            <div class="row">
+
+                <!-- FORM LIÊN HỆ -->
+                <div class="col-md-8 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title mb-4">Liên hệ với chúng tôi</h2>
+
+                            <form>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">
+                                        Họ và tên <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">
+                                        Email <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Tiêu đề</label>
+                                    <input type="text" class="form-control" id="subject" name="subject">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">
+                                        Nội dung <span class="text-danger">*</span>
+                                    </label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Gửi tin nhắn
+                                </button>
+                            </form>
+                            <hr class="my-4" />
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-map-marked-alt text-primary"></i> Bản đồ vị trí công ty
+                            </h5>
+                            <div class="ratio ratio-16x9">
+                                <iframe src="https://www.google.com/maps?q=10.856923762097917,106.76550506661377&output=embed"
+                                        style="border:0;"
+                                        allowfullscreen=""
+                                        loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- THÔNG TIN LIÊN HỆ -->
+                <div class="col-md-4 mb-4">
+
+                    <!-- THÔNG TIN CÔNG TY -->
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-primary">Thông tin công ty</h5>
+                            <p class="mb-1"><strong>Tên công ty:</strong> Công ty TNHH MTV TM & DV Văn Hóa Thành Long</p>
+                            <p class="mb-1"><strong>Tên quốc tế:</strong> Thanh Long Trading and Culture Service One Member Co.,Ltd</p>
+                            <p class="mb-1"><strong>Tên viết tắt:</strong> ThanhLong – TDV Co.,Ltd</p>
+                            <p class="mb-1"><strong>Mã số thuế:</strong> 0102726224</p>
+                        </div>
+                    </div>
+
+                    <!-- ĐỊA CHỈ TRỤ SỞ -->
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-primary">
+                                <i class="fas fa-map-marker-alt"></i> Trụ sở chính
+                            </h5>
+                            <p class="mb-0">
+                                số 180 Cao Lỗ,Quận 8,Thành phố Hồ Chí Minh
+                            </p>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- VĂN PHÒNG HÀ NỘI -->
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-primary">Văn phòng Hà Nội</h5>
+                            <p class="mb-1">
+                                LK02.03, Dãy B, KĐT Green Pearl,<br />
+                                378 Minh Khai, Vĩnh Tuy, Hai Bà Trưng
+                            </p>
+                            <p class="mb-1">
+                                ☎ (84-4) 6294 3819 – 3984 5996
+                            </p>
+                            <p class="mb-1">
+                                📠 Fax: (84-4) 3984 5985
+                            </p>
+                            <p class="mb-0">
+                                ✉ <a href="mailto:thanhlongbook@gmail.com">thanhlongbook@gmail.com</a><br />
+                                🌐 <a href="https://thanhlongbook.vn" target="_blank">thanhlongbook.vn</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- PHÒNG BAN -->
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-primary">Các phòng ban</h5>
+
+                            <p class="mb-2">
+                                <strong>Marketing & Truyền thông:</strong><br />
+                                ☎ (84-24) 7300 8377 (101)<br />
+                                ✉ truyenthong@thanhlongbook.com.vn
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Kinh doanh & Phát hành:</strong><br />
+                                ☎ (84-4) 6294 3819<br />
+                                ✉ kinhdoanh@thanhlongbook.com.vn<br />
+                                👤 Mr Võ Thành Long – 0767375429
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Kế toán – Hành chính:</strong><br />
+                                ☎ (84-4) 3984 5996<br />
+                                ✉ thanhlongbook@gmail.com
+                            </p>
+
+                            <p class="mb-2">
+                                <strong>Ban Biên tập:</strong><br />
+                                ☎ (84-24) 7300 8377 (107–108)<br />
+                                ✉ bientap@thanhlongbook.com.vn
+                            </p>
+
+                            <p class="mb-0">
+                                <strong>Phòng Bản quyền:</strong><br />
+                                ☎ 091 9955 684 – 0973 266 461<br />
+                                ✉ banquyen@thanhlongbook.com.vn
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CHI NHÁNH HCM -->
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-primary">Chi nhánh TP. Hồ Chí Minh</h5>
+                            <p class="mb-1">
+                                33 Đỗ Thừa Tự, Phường Tân Quý,<br />
+                                Quận Tân Phú, TP. Hồ Chí Minh
+                            </p>
+                            <p class="mb-1">
+                                ☎ (84-28) 6675 1142<br />
+                                📠 Fax: (84-28) 6267 8342
+                            </p>
+                            <p class="mb-0">
+                                ✉ cnthanhlongbook@gmail.com<br />
+                                👤 Mr Zero – 0988 349 179
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #1e40af;
+        box-shadow: 0 0 0 0.2rem rgba(30, 64, 175, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #1e40af;
+        border-color: #1e40af;
+    }
+
+        .btn-primary:hover {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+        }
+</style>
