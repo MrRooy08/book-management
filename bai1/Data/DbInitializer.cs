@@ -10,7 +10,13 @@ namespace bai1.Data
             // Đảm bảo database đã được tạo
             context.Database.EnsureCreated();
 
-            // Kiểm tra xem đã có dữ liệu chưa
+            // Seed Roles trước (luôn kiểm tra và tạo nếu chưa có)
+            SeedRoles(context);
+
+            // Seed Admin user (luôn kiểm tra và tạo nếu chưa có)
+            SeedAdminUser(context);
+
+            // Kiểm tra xem đã có dữ liệu sách chưa
             if (context.Books.Any())
             {
                 return; // Database đã được seed
@@ -122,10 +128,7 @@ namespace bai1.Data
                             IsPrimary = true
                         }
                     },
-                    Inventories = new List<Inventory>
-                    {
-                        new Inventory { Quantity = 50 }
-                    }
+                    Inventory = new Inventory { Quantity = 50 }
                 },
                 new Book
                 {
@@ -160,10 +163,7 @@ namespace bai1.Data
                             IsPrimary = true
                         }
                     },
-                    Inventories = new List<Inventory>
-                    {
-                        new Inventory { Quantity = 30 }
-                    }
+                    Inventory = new Inventory { Quantity = 30 }
                 },
                 new Book
                 {
@@ -198,10 +198,7 @@ namespace bai1.Data
                             IsPrimary = true
                         }
                     },
-                    Inventories = new List<Inventory>
-                    {
-                        new Inventory { Quantity = 75 }
-                    }
+                    Inventory = new Inventory { Quantity = 75 }
                 },
                 new Book
                 {
@@ -236,10 +233,7 @@ namespace bai1.Data
                             IsPrimary = true
                         }
                     },
-                    Inventories = new List<Inventory>
-                    {
-                        new Inventory { Quantity = 25 }
-                    }
+                    Inventory = new Inventory { Quantity = 25 }
                 },
                 new Book
                 {
@@ -274,10 +268,7 @@ namespace bai1.Data
                             IsPrimary = true
                         }
                     },
-                    Inventories = new List<Inventory>
-                    {
-                        new Inventory { Quantity = 40 }
-                    }
+                    Inventory = new Inventory { Quantity = 40 }
                 },
                 new Book
                 {
@@ -312,10 +303,7 @@ namespace bai1.Data
                             IsPrimary = true
                         }
                     },
-                    Inventories = new List<Inventory>
-                    {
-                        new Inventory { Quantity = 60 }
-                    }
+                    Inventory = new Inventory { Quantity = 60 }
                 }
             };
 
@@ -329,6 +317,70 @@ namespace bai1.Data
 
             context.Books.AddRange(books);
             context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Tạo các Roles mặc định nếu chưa có
+        /// </summary>
+        private static void SeedRoles(ApplicationDbContext context)
+        {
+            var roles = new[]
+            {
+                new { Name = "Admin", Description = "Quản trị viên hệ thống - Toàn quyền" },
+                new { Name = "Staff", Description = "Nhân viên - Quản lý đơn hàng và sách" },
+                new { Name = "User", Description = "Người dùng thông thường - Mua hàng" }
+            };
+
+            foreach (var roleInfo in roles)
+            {
+                if (!context.Roles.Any(r => r.RoleName == roleInfo.Name))
+                {
+                    context.Roles.Add(new Role
+                    {
+                        RoleName = roleInfo.Name,
+                        RoleDescription = roleInfo.Description
+                    });
+                }
+            }
+
+            context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Tạo tài khoản Admin mặc định nếu chưa có
+        /// </summary>
+        private static void SeedAdminUser(ApplicationDbContext context)
+        {
+            // Kiểm tra xem đã có admin chưa
+            var adminEmail = "admin@bookstore.com";
+            var existingAdmin = context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefault(u => u.Email == adminEmail);
+
+            if (existingAdmin == null)
+            {
+                var adminRole = context.Roles.FirstOrDefault(r => r.RoleName == "Admin");
+                if (adminRole != null)
+                {
+                    var adminUser = new User
+                    {
+                        Name = "Administrator",
+                        Email = adminEmail,
+                        Password = "admin123", // Trong thực tế nên hash password
+                        BirthDay = new DateTime(1990, 1, 1),
+                        Roles = new List<Role> { adminRole }
+                    };
+
+                    context.Users.Add(adminUser);
+                    context.SaveChanges();
+
+                    Console.WriteLine("===========================================");
+                    Console.WriteLine("  TÀI KHOẢN ADMIN MẶC ĐỊNH ĐÃ ĐƯỢC TẠO");
+                    Console.WriteLine("  Email: admin@bookstore.com");
+                    Console.WriteLine("  Password: admin123");
+                    Console.WriteLine("===========================================");
+                }
+            }
         }
     }
 }

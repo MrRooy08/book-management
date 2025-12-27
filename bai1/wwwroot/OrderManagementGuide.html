@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>H? Th?ng Qu?n Lý ??n Hàng</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .feature {
+            background: #ecf0f1;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .status-flow {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .status-box {
+            background: white;
+            border: 2px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            margin: 5px;
+            min-width: 150px;
+        }
+        .status-box.pending { border-color: #f39c12; }
+        .status-box.confirmed { border-color: #3498db; }
+        .status-box.processing { border-color: #9b59b6; }
+        .status-box.shipping { border-color: #e67e22; }
+        .status-box.delivered { border-color: #27ae60; }
+        .status-box.cancelled { border-color: #e74c3c; }
+        .arrow {
+            font-size: 24px;
+            align-self: center;
+            color: #7f8c8d;
+        }
+        .url-box {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        .screenshot {
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 15px 0;
+            background: #ecf0f1;
+        }
+        code {
+            background: #2c3e50;
+            color: #e74c3c;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .important {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>?? H? Th?ng Qu?n Lý ??n Hàng - H??ng D?n S? D?ng</h1>
+        
+        <h2>?? T?ng Quan</h2>
+        <p>H? th?ng qu?n lý ??n hàng ???c chia thành 2 ph?n:</p>
+        
+        <div class="feature">
+            <h3>????? Admin Order Management</h3>
+            <p><strong>URL:</strong> <code>/AdminOrder/Index</code></p>
+            <p>Dành cho qu?n tr? viên ??:</p>
+            <ul>
+                <li>Xem t?t c? ??n hàng</li>
+                <li>Duy?t và xác nh?n ??n hàng COD</li>
+                <li>C?p nh?t tr?ng thái ??n hàng</li>
+                <li>H?y ??n hàng v?i lý do</li>
+                <li>Xem th?ng kê ??n hàng</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <h3>?? My Order (User)</h3>
+            <p><strong>URL:</strong> <code>/MyOrder/Index</code></p>
+            <p>Dành cho khách hàng ??:</p>
+            <ul>
+                <li>Xem danh sách ??n hàng c?a mình</li>
+                <li>Theo dõi tr?ng thái ??n hàng</li>
+                <li>H?y ??n hàng (n?u ? tr?ng thái cho phép)</li>
+            </ul>
+        </div>
+
+        <h2>?? Lu?ng Tr?ng Thái ??n Hàng</h2>
+        
+        <div class="status-flow">
+            <div class="status-box pending">
+                <strong>1. Pending</strong><br>
+                <small>Ch? xác nh?n</small>
+            </div>
+            <span class="arrow">?</span>
+            <div class="status-box confirmed">
+                <strong>2. Confirmed</strong><br>
+                <small>?ã xác nh?n</small>
+            </div>
+            <span class="arrow">?</span>
+            <div class="status-box processing">
+                <strong>3. Processing</strong><br>
+                <small>?ang chu?n b?</small>
+            </div>
+            <span class="arrow">?</span>
+            <div class="status-box shipping">
+                <strong>4. Shipping</strong><br>
+                <small>?ang giao hàng</small>
+            </div>
+            <span class="arrow">?</span>
+            <div class="status-box delivered">
+                <strong>5. Delivered</strong><br>
+                <small>?ã giao hàng</small>
+            </div>
+        </div>
+
+        <div class="status-flow" style="justify-content: flex-start;">
+            <div class="status-box cancelled">
+                <strong>Cancelled</strong><br>
+                <small>?ã h?y (có th? h?y ? b?t k? b??c nào)</small>
+            </div>
+        </div>
+
+        <h2>?? H??ng D?n S? D?ng - Admin</h2>
+
+        <h3>1. Truy c?p trang qu?n lý ??n hàng</h3>
+        <div class="screenshot">
+            <p><strong>Cách 1:</strong> T? trang Admin Dashboard</p>
+            <div class="url-box">/Book/Index ? Tab "Qu?n lý hoá ??n" ? Click "Xem T?t C? ??n Hàng"</div>
+            
+            <p><strong>Cách 2:</strong> Truy c?p tr?c ti?p</p>
+            <div class="url-box">/AdminOrder/Index</div>
+        </div>
+
+        <h3>2. Xem và l?c ??n hàng</h3>
+        <div class="feature">
+            <ul>
+                <li>Xem th?ng kê t?ng quan (cards trên ??u trang)</li>
+                <li>Click vào các tab ?? l?c theo tr?ng thái:
+                    <ul>
+                        <li>T?t c?</li>
+                        <li>Ch? xác nh?n</li>
+                        <li>?ã xác nh?n</li>
+                        <li>?ang x? lý</li>
+                        <li>?ang giao</li>
+                        <li>?ã giao</li>
+                        <li>?ã h?y</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3>3. X? lý ??n hàng COD</h3>
+        <div class="screenshot">
+            <p><strong>B??c 1:</strong> Click "Chi ti?t" trên ??n hàng c?n x? lý</p>
+            <p><strong>B??c 2:</strong> Ki?m tra thông tin ??n hàng</p>
+            <p><strong>B??c 3:</strong> Duy?t ??n hàng theo tr?ng thái:</p>
+            <ol>
+                <li>N?u ??n hàng ? tr?ng thái <strong>Pending</strong>:
+                    <ul>
+                        <li>Click nút <code>Xác nh?n ??n hàng</code></li>
+                        <li>??n hàng chuy?n sang <strong>Confirmed</strong></li>
+                    </ul>
+                </li>
+                <li>Khi ?ã <strong>Confirmed</strong>:
+                    <ul>
+                        <li>Click <code>B?t ??u chu?n b?</code></li>
+                        <li>??n hàng chuy?n sang <strong>Processing</strong></li>
+                    </ul>
+                </li>
+                <li>Khi ?ã <strong>Processing</strong>:
+                    <ul>
+                        <li>Click <code>B?t ??u giao hàng</code></li>
+                        <li>??n hàng chuy?n sang <strong>Shipping</strong></li>
+                    </ul>
+                </li>
+                <li>Khi ?ã <strong>Shipping</strong>:
+                    <ul>
+                        <li>Click <code>Xác nh?n ?ã giao</code></li>
+                        <li>??n hàng chuy?n sang <strong>Delivered</strong></li>
+                        <li><strong>Quan tr?ng:</strong> V?i ??n COD, tr?ng thái thanh toán t? ??ng chuy?n thành "?ã thanh toán"</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>4. H?y ??n hàng</h3>
+        <div class="important">
+            <strong>?? L?u ý:</strong> Có th? h?y ??n hàng ? b?t k? tr?ng thái nào (tr? Delivered)
+        </div>
+        <ol>
+            <li>Trong trang chi ti?t ??n hàng</li>
+            <li>Click nút <code>H?y ??n hàng</code> (màu ??)</li>
+            <li>Nh?p lý do h?y ??n (b?t bu?c)</li>
+            <li>Click <code>Xác nh?n h?y</code></li>
+        </ol>
+
+        <h2>?? H??ng D?n S? D?ng - Khách Hàng</h2>
+
+        <h3>1. Xem ??n hàng c?a tôi</h3>
+        <div class="url-box">/MyOrder/Index</div>
+        <div class="important">
+            <strong>?? Yêu c?u:</strong> Ph?i ??ng nh?p (có UserId trong Session)
+        </div>
+
+        <h3>2. Theo dõi tr?ng thái ??n hàng</h3>
+        <div class="feature">
+            <ul>
+                <li>Click <code>Xem chi ti?t</code> trên ??n hàng</li>
+                <li>Xem timeline tr?ng thái v?i hi?u ?ng ??ng</li>
+                <li>Tr?ng thái hi?n t?i s? có icon ch?p sáng</li>
+                <li>Các tr?ng thái ?ã qua có d?u tích xanh</li>
+            </ul>
+        </div>
+
+        <h3>3. H?y ??n hàng</h3>
+        <div class="important">
+            <strong>?? ?i?u ki?n:</strong> Ch? h?y ???c khi ??n hàng ? tr?ng thái <strong>Pending</strong> ho?c <strong>Confirmed</strong>
+        </div>
+        <ol>
+            <li>Trong danh sách ho?c chi ti?t ??n hàng</li>
+            <li>Click nút <code>H?y ??n</code></li>
+            <li>Ch?n lý do t? dropdown:
+                <ul>
+                    <li>Mu?n thay ??i s?n ph?m</li>
+                    <li>Tìm ???c giá r? h?n</li>
+                    <li>??t nh?m</li>
+                    <li>Thay ??i ??a ch? giao hàng</li>
+                    <li>Lý do khác</li>
+                </ul>
+            </li>
+            <li>Click <code>Xác nh?n h?y</code></li>
+        </ol>
+
+        <h2>?? Các Tính N?ng ??c Bi?t</h2>
+
+        <div class="feature">
+            <h3>?? Timeline Tr?ng Thái</h3>
+            <ul>
+                <li>Hi?n th? tr?c quan ti?n trình ??n hàng</li>
+                <li>Animation ch?p sáng cho tr?ng thái hi?n t?i</li>
+                <li>Icon và màu s?c phân bi?t rõ ràng</li>
+                <li>Hi?n th? th?i gian c?a t?ng b??c</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <h3>?? Th?ng Kê Admin</h3>
+            <ul>
+                <li>S? l??ng ??n hàng theo t?ng tr?ng thái</li>
+                <li>Cards v?i màu s?c tr?c quan</li>
+                <li>C?p nh?t real-time khi thay ??i tr?ng thái</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <h3>?? X? Lý Thanh Toán COD</h3>
+            <ul>
+                <li>??n hàng COD ban ??u có tr?ng thái thanh toán: "Ch?a thanh toán"</li>
+                <li>Khi ??n hàng chuy?n sang <strong>Delivered</strong>:
+                    <ul>
+                        <li>Tr?ng thái thanh toán t? ??ng: "?ã thanh toán"</li>
+                        <li>Ghi nh?n th?i gian thanh toán</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h2>?? Cài ??t & Tri?n Khai</h2>
+
+        <h3>1. Service ?ã ???c ??ng ký trong Program.cs</h3>
+        <div class="url-box">builder.Services.AddScoped&lt;IOrderService, OrderService&gt;();</div>
+
+        <h3>2. Database ?ã s?n sàng</h3>
+        <p>Model Order ?ã có ??y ?? các tr??ng c?n thi?t. Không c?n migration m?i.</p>
+
+        <h3>3. Test v?i d? li?u m?u</h3>
+        <p>File <code>SampleData.sql</code> ?ã ch?a 4 ??n hàng m?u v?i các tr?ng thái khác nhau:</p>
+        <ul>
+            <li>??n #1: Processing (COD, Ch?a thanh toán)</li>
+            <li>??n #2: Delivered (VNPay, ?ã thanh toán)</li>
+            <li>??n #3: Shipping (VNPay, ?ã thanh toán)</li>
+            <li>??n #4: Delivered (VNPay, ?ã thanh toán)</li>
+        </ul>
+
+        <h2>? Quick Start</h2>
+        
+        <div class="screenshot">
+            <h3>Test Workflow COD</h3>
+            <ol>
+                <li>Khách hàng ??t hàng v?i ph??ng th?c COD
+                    <ul>
+                        <li>Tr?ng thái: <strong>Pending</strong></li>
+                        <li>Thanh toán: <strong>Ch?a thanh toán</strong></li>
+                    </ul>
+                </li>
+                <li>Admin vào <code>/AdminOrder/Index</code></li>
+                <li>Click tab "Ch? xác nh?n" ?? xem ??n m?i</li>
+                <li>Click "Chi ti?t" ? "Xác nh?n ??n hàng"</li>
+                <li>L?n l??t c?p nh?t: Processing ? Shipping ? Delivered</li>
+                <li>Khi Delivered:
+                    <ul>
+                        <li>Tr?ng thái: <strong>Delivered</strong></li>
+                        <li>Thanh toán: <strong>?ã thanh toán</strong> (t? ??ng)</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h2>?? H? Tr?</h2>
+        <p>N?u g?p v?n ??, ki?m tra:</p>
+        <ul>
+            <li>? Build project thành công</li>
+            <li>? Database ?ã update migration</li>
+            <li>? OrderService ?ã ???c ??ng ký trong Program.cs</li>
+            <li>? Session ?ã ???c configure</li>
+            <li>? UserId có trong Session khi test MyOrder</li>
+        </ul>
+
+        <div class="important">
+            <h3>?? TODO - C?i Ti?n Trong T??ng Lai</h3>
+            <ul>
+                <li>Thêm Authentication/Authorization th?t</li>
+                <li>Email/SMS notification khi thay ??i tr?ng thái</li>
+                <li>Tích h?p API ??n v? v?n chuy?n</li>
+                <li>Xu?t báo cáo PDF ??n hàng</li>
+                <li>Dashboard analytics chi ti?t h?n</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

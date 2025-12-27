@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T?i Hình ?nh Sách</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #f5f5f5; 
+            padding: 20px; 
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 { color: #333; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; 
+        }
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .card h3 { 
+            margin: 0 0 5px 0; 
+            color: #333; 
+            font-size: 16px;
+        }
+        .card .author { 
+            color: #888; 
+            font-size: 13px; 
+            margin-bottom: 15px;
+        }
+        .card .filename { 
+            background: #e3f2fd; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            font-family: monospace; 
+            font-size: 14px;
+            color: #1565c0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card .filename::before {
+            content: "??";
+        }
+        .links { display: flex; gap: 10px; flex-wrap: wrap; }
+        .links a { 
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px; 
+            background: #667eea; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .links a:hover { 
+            background: #5a6fd6;
+            transform: translateY(-1px);
+        }
+        .links a.google { background: #4285f4; }
+        .links a.tiki { background: #1a94ff; }
+        .links a.fahasa { background: #e53935; }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .instructions h2 { margin-top: 0; color: #856404; }
+        .instructions ol { margin: 0; padding-left: 20px; }
+        .instructions li { margin-bottom: 8px; color: #856404; }
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .copy-btn:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <h1>?? T?i Hình ?nh Sách</h1>
+    <p class="subtitle">Click vào các link ?? tìm và t?i ?nh bìa sách phù h?p</p>
+
+    <div class="instructions">
+        <h2>?? H??ng d?n:</h2>
+        <ol>
+            <li>Click vào link tìm ki?m (Google Images, Tiki, ho?c Fahasa)</li>
+            <li>Tìm ?nh bìa sách có ch?t l??ng t?t</li>
+            <li>Click chu?t ph?i ? <strong>Save image as...</strong></li>
+            <li>L?u vào th? m?c <code>bai1/wwwroot/images/books/</code></li>
+            <li>??t tên file <strong>chính xác</strong> nh? hi?n th? trong ô màu xanh</li>
+        </ol>
+    </div>
+
+    <div class="grid">
+        <!-- M?t Bi?c -->
+        <div class="card">
+            <h3>M?t Bi?c</h3>
+            <div class="author">Nguy?n Nh?t Ánh</div>
+            <div class="filename">
+                mat-biec.jpg
+                <button class="copy-btn" onclick="copyText('mat-biec.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=M%E1%BA%AFt+Bi%E1%BA%BFc+Nguy%E1%BB%85n+Nh%E1%BA%ADt+%C3%81nh+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=m%E1%BA%AFt%20bi%E1%BA%BFc" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=mat+biec" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- Tôi Th?y Hoa Vàng Trên C? Xanh -->
+        <div class="card">
+            <h3>Tôi Th?y Hoa Vàng Trên C? Xanh</h3>
+            <div class="author">Nguy?n Nh?t Ánh</div>
+            <div class="filename">
+                hoa-vang.jpg
+                <button class="copy-btn" onclick="copyText('hoa-vang.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=T%C3%B4i+th%E1%BA%A5y+hoa+v%C3%A0ng+tr%C3%AAn+c%E1%BB%8F+xanh+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=toi%20thay%20hoa%20vang" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=toi+thay+hoa+vang" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- 1Q84 -->
+        <div class="card">
+            <h3>1Q84</h3>
+            <div class="author">Haruki Murakami</div>
+            <div class="filename">
+                1q84.jpg
+                <button class="copy-btn" onclick="copyText('1q84.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=1Q84+Haruki+Murakami+book+cover&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=1q84" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.amazon.com/s?k=1q84+haruki+murakami" target="_blank" class="fahasa">??? Amazon</a>
+            </div>
+        </div>
+
+        <!-- Rich Dad Poor Dad -->
+        <div class="card">
+            <h3>D?y Con Làm Giàu (Rich Dad Poor Dad)</h3>
+            <div class="author">Robert Kiyosaki</div>
+            <div class="filename">
+                rich-dad.jpg
+                <button class="copy-btn" onclick="copyText('rich-dad.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=D%E1%BA%A1y+con+l%C3%A0m+gi%C3%A0u+Rich+Dad+Poor+Dad+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=cha%20giau%20cha%20ngheo" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=cha+giau+cha+ngheo" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- 7 Thói Quen -->
+        <div class="card">
+            <h3>7 Thói Quen Hi?u Qu?</h3>
+            <div class="author">Stephen R. Covey</div>
+            <div class="filename">
+                7-habits.jpg
+                <button class="copy-btn" onclick="copyText('7-habits.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=7+th%C3%B3i+quen+hi%E1%BB%87u+qu%E1%BA%A3+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=7%20thoi%20quen" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=7+thoi+quen" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- ??c Nhân Tâm -->
+        <div class="card">
+            <h3>??c Nhân Tâm</h3>
+            <div class="author">Dale Carnegie</div>
+            <div class="filename">
+                dac-nhan-tam.jpg
+                <button class="copy-btn" onclick="copyText('dac-nhan-tam.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=%C4%90%E1%BA%AFc+nh%C3%A2n+t%C3%A2m+Dale+Carnegie+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=dac%20nhan%20tam" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=dac+nhan+tam" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- Trên ???ng B?ng -->
+        <div class="card">
+            <h3>Trên ???ng B?ng</h3>
+            <div class="author">Tony Bu?i Sáng</div>
+            <div class="filename">
+                tren-duong-bang.jpg
+                <button class="copy-btn" onclick="copyText('tren-duong-bang.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=Tr%C3%AAn+%C4%91%C6%B0%E1%BB%9Dng+b%C4%83ng+Tony+Bu%E1%BB%95i+S%C3%A1ng+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=tren%20duong%20bang" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=tren+duong+bang" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- Harry Potter -->
+        <div class="card">
+            <h3>Harry Potter Và Hòn ?á Phù Th?y</h3>
+            <div class="author">J.K. Rowling</div>
+            <div class="filename">
+                harry-potter.jpg
+                <button class="copy-btn" onclick="copyText('harry-potter.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=Harry+Potter+h%C3%B2n+%C4%91%C3%A1+ph%C3%B9+th%E1%BB%A7y+b%C3%ACa+s%C3%A1ch+ti%E1%BA%BFng+vi%E1%BB%87t&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=harry%20potter%20hon%20da%20phu%20thuy" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=harry+potter" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- D? Mèn -->
+        <div class="card">
+            <h3>D? Mèn Phiêu L?u Ký</h3>
+            <div class="author">Tô Hoài</div>
+            <div class="filename">
+                de-men.jpg
+                <button class="copy-btn" onclick="copyText('de-men.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=D%E1%BA%BF+m%C3%A8n+phi%C3%AAu+l%C6%B0u+k%C3%BD+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=de%20men%20phieu%20luu%20ky" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=de+men+phieu+luu+ky" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- Introduction to Algorithms -->
+        <div class="card">
+            <h3>Introduction to Algorithms</h3>
+            <div class="author">CLRS</div>
+            <div class="filename">
+                algorithms.jpg
+                <button class="copy-btn" onclick="copyText('algorithms.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=Introduction+to+Algorithms+CLRS+book+cover&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://www.amazon.com/s?k=introduction+to+algorithms" target="_blank" class="fahasa">??? Amazon</a>
+            </div>
+        </div>
+
+        <!-- Sapiens -->
+        <div class="card">
+            <h3>Sapiens: L??c S? Loài Ng??i</h3>
+            <div class="author">Yuval Noah Harari</div>
+            <div class="filename">
+                sapiens.jpg
+                <button class="copy-btn" onclick="copyText('sapiens.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=Sapiens+l%C6%B0%E1%BB%A3c+s%E1%BB%AD+lo%C3%A0i+ng%C6%B0%E1%BB%9Di+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=sapiens" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=sapiens" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+
+        <!-- Nhà Gi? Kim -->
+        <div class="card">
+            <h3>Nhà Gi? Kim</h3>
+            <div class="author">Paulo Coelho</div>
+            <div class="filename">
+                nha-gia-kim.jpg
+                <button class="copy-btn" onclick="copyText('nha-gia-kim.jpg')">Copy</button>
+            </div>
+            <div class="links">
+                <a href="https://www.google.com/search?q=Nh%C3%A0+gi%E1%BA%A3+kim+Paulo+Coelho+b%C3%ACa+s%C3%A1ch&tbm=isch" target="_blank" class="google">?? Google</a>
+                <a href="https://tiki.vn/search?q=nha%20gia%20kim" target="_blank" class="tiki">?? Tiki</a>
+                <a href="https://www.fahasa.com/catalogsearch/result/?q=nha+gia+kim" target="_blank" class="fahasa">?? Fahasa</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('?ã copy: ' + text);
+            });
+        }
+    </script>
+</body>
+</html>

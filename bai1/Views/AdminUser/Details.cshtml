@@ -1,0 +1,609 @@
+﻿@model bai1.Models.User
+
+@{
+    ViewData["Title"] = "Chi Ti?t Ng??i Dùng - " + (Model.Name ?? Model.Email);
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    
+    var allRoles = ViewBag.AllRoles as List<bai1.Models.Role>;
+    var isTargetAdmin = Model.Roles.Any(r => r.RoleName == "Admin");
+    var currentUserId = ViewBag.CurrentUserId as int?;
+    var isViewingSelf = currentUserId.HasValue && currentUserId.Value == Model.Id;
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Quay l?i danh sách
+    </a>
+    <h2 class="fw-bold">
+        <i class="bi bi-person-circle"></i> Chi Ti?t Ng??i Dùng #@Model.Id
+        @if (isViewingSelf)
+        {
+            <span class="badge bg-info ms-2">?ây là b?n</span>
+        }
+    </h2>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <!-- Left Column - User Info -->
+    <div class="col-lg-8">
+        <!-- User Profile Card -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-person"></i> Thông Tin Ng??i Dùng</h5>
+                <div>
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> ?ang ho?t ??ng</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> B? khóa</span>
+                    }
+                    @if (Model.IsVip)
+                    {
+                        <span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> VIP</span>
+                    }
+                    @if (isTargetAdmin)
+                    {
+                        <span class="badge bg-danger"><i class="bi bi-shield-check"></i> Admin</span>
+                    }
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="user-avatar-large mb-3">
+                            @if (!string.IsNullOrEmpty(Model.Avatar))
+                            {
+                                <img src="~/@Model.Avatar" alt="@Model.Name" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="avatar-placeholder @(isTargetAdmin ? "admin" : "") @(Model.IsVip ? "vip" : "")">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                            }
+                        </div>
+                        @foreach (var role in Model.Roles)
+                        {
+                            <span class="badge @(role.RoleName == "Admin" ? "bg-danger" : "bg-secondary") mb-1">
+                                @role.RoleName
+                            </span>
+                        }
+                    </div>
+                    <div class="col-md-9">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="150"><i class="bi bi-person me-2"></i>H? tên:</th>
+                                <td><strong>@(Model.Name ?? "Ch?a ??t tên")</strong></td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-envelope me-2"></i>Email:</th>
+                                <td>@Model.Email</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-telephone me-2"></i>?i?n tho?i:</th>
+                                <td>@(Model.Phone ?? "Ch?a c?p nh?t")</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-geo-alt me-2"></i>??a ch?:</th>
+                                <td>@(Model.Address ?? "Ch?a c?p nh?t")</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-cake me-2"></i>Ngày sinh:</th>
+                                <td>@Model.BirthDay.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-calendar-plus me-2"></i>Tham gia:</th>
+                                <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <th><i class="bi bi-box-arrow-in-right me-2"></i>??ng nh?p cu?i:</th>
+                                <td>@(Model.LastLoginAt?.ToString("dd/MM/yyyy HH:mm") ?? "Ch?a có")</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Th?ng Kê Mua Hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="stat-box bg-primary text-white rounded p-3">
+                            <h3 class="mb-0">@Model.TotalOrders</h3>
+                            <small>T?ng ??n hàng</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box bg-success text-white rounded p-3">
+                            <h3 class="mb-0">@(Model.Orders?.Count(o => o.OrderStatus == "Delivered") ?? 0)</h3>
+                            <small>??n hoàn thành</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box bg-warning text-dark rounded p-3">
+                            <h3 class="mb-0">@(Model.Orders?.Count(o => o.OrderStatus == "Cancelled") ?? 0)</h3>
+                            <small>??n ?ã h?y</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box bg-info text-white rounded p-3">
+                            <h3 class="mb-0">@Model.TotalSpent.ToString("N0") ?</h3>
+                            <small>T?ng chi tiêu</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-box-seam"></i> ??n Hàng G?n ?ây</h5>
+                @if (Model.Orders?.Any() == true)
+                {
+                    <span class="badge bg-primary">@Model.Orders.Count ??n</span>
+                }
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Orders?.Any() == true)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mã ?H</th>
+                                    <th>Ngày ??t</th>
+                                    <th class="text-end">T?ng ti?n</th>
+                                    <th class="text-center">Tr?ng thái</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.Orders.OrderByDescending(o => o.CreatedAt).Take(5))
+                                {
+                                    <tr>
+                                        <td><strong>#@order.Id</strong></td>
+                                        <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="text-end fw-bold text-primary">@order.TotalAmount.ToString("N0") ?</td>
+                                        <td class="text-center">
+                                            @switch (order.OrderStatus)
+                                            {
+                                                case "Pending":
+                                                    <span class="badge bg-warning text-dark">Ch? xác nh?n</span>
+                                                    break;
+                                                case "Confirmed":
+                                                    <span class="badge bg-info">?ã xác nh?n</span>
+                                                    break;
+                                                case "Processing":
+                                                    <span class="badge bg-primary">?ang x? lý</span>
+                                                    break;
+                                                case "Shipping":
+                                                    <span class="badge bg-purple">?ang giao</span>
+                                                    break;
+                                                case "Delivered":
+                                                    <span class="badge bg-success">?ã giao</span>
+                                                    break;
+                                                case "Cancelled":
+                                                    <span class="badge bg-danger">?ã h?y</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            <a asp-controller="AdminOrder" asp-action="Details" asp-route-id="@order.Id" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox" style="font-size: 2rem; color: #ccc;"></i>
+                        <p class="text-muted mt-2">Ch?a có ??n hàng nào</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Actions -->
+    <div class="col-lg-4">
+        <!-- Account Status -->
+        <div class="card mb-3 @(!Model.IsActive ? "border-danger" : "border-success")">
+            <div class="card-header @(!Model.IsActive ? "bg-danger text-white" : "bg-success text-white")">
+                <h6 class="mb-0">
+                    <i class="bi @(Model.IsActive ? "bi-check-circle" : "bi-x-circle")"></i>
+                    Tr?ng Thái Tài Kho?n
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">
+                    Tài kho?n này hi?n ?ang: 
+                    <strong class="@(Model.IsActive ? "text-success" : "text-danger")">
+                        @(Model.IsActive ? "Ho?t ??ng" : "B? khóa")
+                    </strong>
+                </p>
+                
+                @if (isTargetAdmin && Model.IsActive)
+                {
+                    <!-- Không cho phép khóa tài kho?n Admin -->
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-shield-exclamation"></i>
+                        <strong>Không th? khóa tài kho?n Admin!</strong>
+                        <br /><small>Vui lòng xóa quy?n Admin tr??c khi khóa.</small>
+                    </div>
+                }
+                else if (isViewingSelf)
+                {
+                    <!-- Không cho phép t? khóa chính mình -->
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        B?n không th? khóa tài kho?n c?a chính mình.
+                    </div>
+                }
+                else
+                {
+                    <button type="button" class="btn @(Model.IsActive ? "btn-danger" : "btn-success") w-100" 
+                            data-bs-toggle="modal" data-bs-target="#toggleStatusModal">
+                        <i class="bi @(Model.IsActive ? "bi-lock" : "bi-unlock")"></i>
+                        @(Model.IsActive ? "Khóa tài kho?n" : "M? khóa tài kho?n")
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- VIP Status -->
+        <div class=" @(Model.IsVip ? "border-warning" : "")">
+            @* <div class="card-header @(Model.IsVip ? "bg-warning text-dark" : "bg-light")">
+                <h6 class="mb-0">
+                    <i class="bi bi-star-fill"></i>
+                   
+                </h6>
+            </div> *@
+            <div class="card-body">
+                @if (Model.IsVip)
+                {
+                    <div class="text-center mb-3">
+                        <span class="badge bg-warning text-dark fs-5 p-2">
+                            <i class="bi bi-star-fill"></i> KHÁCH HÀNG VIP
+                        </span>
+                    </div>
+                    @if (Model.VipStartDate.HasValue)
+                    {
+                        <p class="mb-1"><strong>B?t ??u:</strong> @Model.VipStartDate.Value.ToString("dd/MM/yyyy")</p>
+                    }
+                    @if (Model.VipEndDate.HasValue)
+                    {
+                        <p class="mb-1"><strong>H?t h?n:</strong> @Model.VipEndDate.Value.ToString("dd/MM/yyyy")</p>
+                        @if (Model.VipEndDate < DateTime.Now)
+                        {
+                            <div class="alert alert-danger py-1 mt-2">
+                                <i class="bi bi-exclamation-triangle"></i> VIP ?ã h?t h?n!
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="mb-1"><strong>Th?i h?n:</strong> <span class="text-success">V?nh vi?n</span></p>
+                    }
+                    <hr />
+                    <button type="button" class="btn btn-outline-danger w-100" 
+                            data-bs-toggle="modal" data-bs-target="#removeVipModal">
+                        <i class="bi bi-star"></i> H?y VIP
+                    </button>
+                }
+                else
+                {
+                    @* <p class="text-muted mb-3">Ng??i dùng này ch?a ph?i VIP</p>
+                    <button type="button" class="btn btn-warning w-100" 
+                            data-bs-toggle="modal" data-bs-target="#addVipModal">
+                        <i class="bi bi-star-fill"></i> Nâng c?p VIP
+                    </button> *@
+                }
+            </div>
+        </div>
+
+        <!-- Roles -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-shield"></i> Vai Trò</h6>
+            </div>
+            <div class="card-body">
+                @if (isViewingSelf && isTargetAdmin)
+                {
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle"></i>
+                        <small>B?n không th? t? xóa quy?n Admin c?a chính mình.</small>
+                    </div>
+                }
+                
+                <form asp-action="UpdateRoles" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    
+                    @if (allRoles != null)
+                    {
+                        @foreach (var role in allRoles)
+                        {
+                            var isChecked = Model.Roles.Any(r => r.Id == role.Id);
+                            var isAdminRole = role.RoleName == "Admin";
+                            var isDisabled = isViewingSelf && isAdminRole && isChecked;
+                            
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="roleIds" value="@role.Id" id="role_@role.Id"
+                                       checked="@isChecked" 
+                                       disabled="@isDisabled" />
+                                @if (isDisabled)
+                                {
+                                    <!-- Hidden input ?? v?n g?i giá tr? khi disabled -->
+                                    <input type="hidden" name="roleIds" value="@role.Id" />
+                                }
+                                <label class="form-check-label" for="role_@role.Id">
+                                    <span class="badge @(isAdminRole ? "bg-danger" : "bg-secondary")">
+                                        @role.RoleName
+                                    </span>
+                                    <small class="text-muted d-block">@role.RoleDescription</small>
+                                </label>
+                            </div>
+                        }
+                    }
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="bi bi-save"></i> L?u vai trò
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Note -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-sticky"></i> Ghi Chú Admin</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="UpdateNote" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <textarea name="note" class="form-control mb-3" rows="4" 
+                              placeholder="Ghi chú v? ng??i dùng này...">@Model.AdminNote</textarea>
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-save"></i> L?u ghi chú
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toggle Status Modal -->
+@if (!isTargetAdmin || !Model.IsActive)
+{
+    <div class="modal fade" id="toggleStatusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-action="ToggleStatus" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="modal-header @(Model.IsActive ? "bg-danger text-white" : "bg-success text-white")">
+                        <h5 class="modal-title">
+                            @(Model.IsActive ? "Khóa Tài Kho?n" : "M? Khóa Tài Kho?n")
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (Model.IsActive)
+                        {
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                B?n có ch?c mu?n <strong>khóa</strong> tài kho?n <strong>@Model.Email</strong>?
+                                <br />Ng??i dùng s? không th? ??ng nh?p sau khi b? khóa.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                B?n có ch?c mu?n <strong>m? khóa</strong> tài kho?n <strong>@Model.Email</strong>?
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <label class="form-label">Lý do (tùy ch?n)</label>
+                            <textarea name="note" class="form-control" rows="2" 
+                                      placeholder="Nh?p lý do..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H?y</button>
+                        <button type="submit" class="btn @(Model.IsActive ? "btn-danger" : "btn-success")">
+                            <i class="bi @(Model.IsActive ? "bi-lock" : "bi-unlock")"></i>
+                            Xác nh?n
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Add VIP Modal -->
+<div class="modal fade" id="addVipModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="UpdateVipStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="isVip" value="true" />
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="bi bi-star-fill"></i> Nâng Cấp VIP</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Nâng c?p <strong>@Model.Email</strong> thành khách hàng VIP?</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Thời hạn VIP</label>
+                        <select class="form-select" id="vipDuration" onchange="updateVipEndDate()">
+                            <option value="">Vĩnh viễn</option>
+                            <option value="30">1 tháng</option>
+                            <option value="90">3 tháng</option>
+                            <option value="180">6 tháng</option>
+                            <option value="365">1 n?m</option>
+                            <option value="custom">Tùy ch?n</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3" id="customDateDiv" style="display: none;">
+                        <label class="form-label">Ngày h?t h?n</label>
+                        <input type="date" name="vipEndDate" id="vipEndDateInput" class="form-control" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea name="note" class="form-control" rows="2" 
+                                  placeholder="Lý do nâng c?p VIP..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        Quy?n l?i VIP: Gi?m giá ??c bi?t, ?u tiên h? tr?, quà t?ng sinh nh?t...
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H?y</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-star-fill"></i> Xác nh?n nâng c?p
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Remove VIP Modal -->
+<div class="modal fade" id="removeVipModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="UpdateVipStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="isVip" value="false" />
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-star"></i> H?y VIP</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        B?n có ch?c mu?n h?y VIP c?a <strong>@Model.Email</strong>?
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lý do h?y VIP</label>
+                        <textarea name="note" class="form-control" rows="2" 
+                                  placeholder="Nh?p lý do..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H?y</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Xác nh?n h?y VIP
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card { box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); }
+        
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        .avatar-placeholder i {
+            font-size: 80px;
+            color: #6c757d;
+        }
+        
+        .avatar-placeholder.vip {
+            border: 3px solid #ffc107;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+        }
+        
+        .avatar-placeholder.admin {
+            border: 3px solid #dc3545;
+        }
+        
+        .stat-box {
+            transition: transform 0.2s;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-3px);
+        }
+        
+        .bg-purple { background-color: #6f42c1 !important; }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function updateVipEndDate() {
+            var duration = document.getElementById('vipDuration').value;
+            var customDiv = document.getElementById('customDateDiv');
+            var dateInput = document.getElementById('vipEndDateInput');
+            
+            if (duration === 'custom') {
+                customDiv.style.display = 'block';
+                dateInput.required = true;
+            } else if (duration === '') {
+                customDiv.style.display = 'none';
+                dateInput.value = '';
+                dateInput.required = false;
+            } else {
+                customDiv.style.display = 'block';
+                var days = parseInt(duration);
+                var endDate = new Date();
+                endDate.setDate(endDate.getDate() + days);
+                dateInput.value = endDate.toISOString().split('T')[0];
+                dateInput.required = false;
+            }
+        }
+    </script>
+}

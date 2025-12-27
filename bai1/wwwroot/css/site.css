@@ -467,4 +467,18 @@ body {
     opacity: 0.85;
 }
 
+/* Fix z-index conflict with user dropdown */
+.sticky-top {
+    z-index: 1020 !important;
+}
+
+/* Ensure cards don't overlap dropdown */
+.card {
+    position: relative;
+    z-index: auto;
+}
+
+/* Footer hiệu ứng */
+/* ...existing code... */
+
 

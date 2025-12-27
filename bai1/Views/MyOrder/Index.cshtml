@@ -1,0 +1,232 @@
+@model List<bai1.Models.Order>
+
+@{
+    ViewData["Title"] = "??n Hàng C?a Tôi";
+}
+
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">
+                <i class="bi bi-bag-check"></i> ??n Hàng C?a Tôi
+            </h2>
+            <p class="text-muted">Theo dõi và qu?n lý ??n hàng c?a b?n</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 5rem; color: #ccc;"></i>
+            <h4 class="mt-4 text-muted">B?n ch?a có ??n hàng nào</h4>
+            <p class="text-muted">Hãy khám phá và ??t hàng ngay!</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">
+                <i class="bi bi-shop"></i> Mua s?m ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var order in Model)
+            {
+                <div class="col-12 mb-4">
+                    <div class="card order-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold">??n hàng #@order.Id</span>
+                                <span class="text-muted ms-3">
+                                    <i class="bi bi-calendar"></i> @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            </div>
+                            <div>
+                                @switch (order.OrderStatus)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock"></i> Ch? xác nh?n
+                                        </span>
+                                        break;
+                                    case "Confirmed":
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-check-circle"></i> ?ã xác nh?n
+                                        </span>
+                                        break;
+                                    case "Processing":
+                                        <span class="badge bg-primary">
+                                            <i class="bi bi-box-seam"></i> ?ang chu?n b? hàng
+                                        </span>
+                                        break;
+                                    case "Shipping":
+                                        <span class="badge bg-purple">
+                                            <i class="bi bi-truck"></i> ?ang giao hàng
+                                        </span>
+                                        break;
+                                    case "Delivered":
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check2-all"></i> ?ã giao hàng
+                                        </span>
+                                        break;
+                                    case "Cancelled":
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-x-circle"></i> ?ã h?y
+                                        </span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    @foreach (var item in order.OrderDetails.Take(3))
+                                    {
+                                        <div class="d-flex mb-3">
+                                            @if (item.Book?.Images?.Any() == true)
+                                            {
+                                                <img src="~/@item.Book.Images.First().ImageUrl" 
+                                                     alt="@item.BookTitle" 
+                                                     class="me-3" 
+                                                     style="width: 60px; height: 80px; object-fit: cover; border-radius: 4px;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="me-3 bg-light d-flex align-items-center justify-content-center" 
+                                                     style="width: 60px; height: 80px; border-radius: 4px;">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            }
+                                            <div>
+                                                <h6 class="mb-1">@item.BookTitle</h6>
+                                                <p class="mb-0 text-muted">
+                                                    <small>S? l??ng: @item.Quantity × @item.Price.ToString("N0") ?</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (order.OrderDetails.Count > 3)
+                                    {
+                                        <p class="text-muted mb-0">
+                                            <small>... và @(order.OrderDetails.Count - 3) s?n ph?m khác</small>
+                                        </p>
+                                    }
+                                </div>
+                                <div class="col-md-4 border-start">
+                                    <div class="mb-3">
+                                        <small class="text-muted">T?ng ti?n:</small>
+                                        <h4 class="text-primary mb-0">@order.TotalAmount.ToString("N0") ?</h4>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted">Thanh toán:</small>
+                                        <div>
+                                            @if (order.PaymentMethod == "COD")
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-cash"></i> Ti?n m?t
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-credit-card"></i> VNPay
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye"></i> Xem chi ti?t
+                                        </a>
+                                        @if (order.OrderStatus == "Pending" || order.OrderStatus == "Confirmed")
+                                        {
+                                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#cancelModal@(order.Id)">
+                                                <i class="bi bi-x-circle"></i> H?y ??n
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancel Modal for each order -->
+                <div class="modal fade" id="cancelModal@(order.Id)" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form asp-action="CancelOrder" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@order.Id" />
+                                <div class="modal-header">
+                                    <h5 class="modal-title">H?y ??n Hàng #@order.Id</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> 
+                                        B?n có ch?c ch?n mu?n h?y ??n hàng này không?
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Lý do h?y ??n <span class="text-danger">*</span></label>
+                                        <select name="reason" class="form-select" required>
+                                            <option value="">-- Ch?n lý do --</option>
+                                            <option value="Mu?n thay ??i s?n ph?m">Mu?n thay ??i s?n ph?m</option>
+                                            <option value="Tìm ???c giá r? h?n">Tìm ???c giá r? h?n</option>
+                                            <option value="??t nh?m">??t nh?m</option>
+                                            <option value="Thay ??i ??a ch? giao hàng">Thay ??i ??a ch? giao hàng</option>
+                                            <option value="Khác">Lý do khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">?óng</button>
+                                    <button type="submit" class="btn btn-danger">Xác nh?n h?y</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .order-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .order-card .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+    </style>
+}

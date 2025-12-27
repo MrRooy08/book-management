@@ -2,12 +2,24 @@
 
 @{
     ViewData["Title"] = "Giỏ hàng";
+    var inventories = ViewBag.Inventories as Dictionary<int, int> ?? new Dictionary<int, int>();
+    var insufficientItems = ViewBag.InsufficientItems as List<int> ?? new List<int>();
+    // Không chặn đặt hàng dựa trên tồn kho - cho phép overselling
+    var hasInsufficientStock = false;
 }
 
 <div class="container my-5">
     <div class="row">
         <div class="col-12">
             <h2 class="fw-bold mb-4"><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @Html.Raw(TempData["Error"])
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
 
             @if (Model == null || !Model.Any())
             {
@@ -28,11 +40,14 @@
                             <div class="card-body">
                                 @foreach (var item in Model)
                                 {
+                                    var availableQty = inventories.GetValueOrDefault(item.BookId, 0);
+                                    
                                     <div class="row align-items-center border-bottom py-3">
+
                                         <div class="col-md-2 col-3">
                                             @if (!string.IsNullOrEmpty(item.ImageUrl))
                                             {
-                                                <img src="@Url.Content("~/Images/" + item.ImageUrl)" 
+                                                <img src="~/@item.ImageUrl"
                                                      class="img-fluid rounded" 
                                                      alt="@item.Title"
                                                      style="max-height: 100px; object-fit: cover;" />
@@ -53,6 +68,18 @@
                                                 </a>
                                             </h5>
                                             <p class="text-muted mb-0">@item.Price.ToString("N0")đ</p>
+                                            @if (availableQty > 0)
+                                            {
+                                                <small class="text-success">
+                                                    <i class="fas fa-check-circle"></i> Còn @availableQty sản phẩm
+                                                </small>
+                                            }
+                                            else
+                                            {
+                                                <small class="text-warning">
+                                                    <i class="fas fa-clock"></i> Đặt trước - sẽ giao khi có hàng
+                                                </small>
+                                            }
                                         </div>
                                         <div class="col-md-3 col-6 mt-2 mt-md-0">
                                             <form method="post" asp-action="UpdateQuantity" class="d-flex align-items-center">
@@ -61,7 +88,6 @@
                                                        name="quantity" 
                                                        value="@item.Quantity" 
                                                        min="1" 
-                                                       max="99"
                                                        class="form-control form-control-sm me-2" 
                                                        style="max-width: 80px;"
                                                        onchange="this.form.submit()" />
@@ -126,9 +152,11 @@
                                     <h5 class="mb-0">Tổng cộng:</h5>
                                     <h5 class="mb-0 text-primary">@ViewBag.Total.ToString("N0")đ</h5>
                                 </div>
-                                <button class="btn btn-primary w-100 mb-2" disabled>
+                                
+                                <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary w-100 mb-2">
                                     <i class="fas fa-check"></i> Tiến hành thanh toán
-                                </button>
+                                </a>
+                                
                                 <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary w-100">
                                     <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
                                 </a>

@@ -1,0 +1,215 @@
+@{
+    Layout = null;
+    var lockedEmail = Context.Session.GetString("LockedEmail") ?? "";
+    // Clear session sau khi ??c
+    Context.Session.Remove("AccountLocked");
+    Context.Session.Remove("LockedEmail");
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tài Kho?n B? Khóa - Thành Long Book</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .locked-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .locked-header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            padding: 40px 30px;
+            color: white;
+        }
+        
+        .locked-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .locked-icon i {
+            font-size: 50px;
+        }
+        
+        @@keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+            }
+        }
+        
+        .locked-body {
+            padding: 40px 30px;
+        }
+        
+        .locked-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .locked-message {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+        
+        .contact-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .contact-info h6 {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .contact-item i {
+            color: #667eea;
+        }
+        
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .locked-email {
+            font-weight: 600;
+            color: #dc3545;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .warning-box i {
+            color: #ffc107;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="locked-container">
+        <div class="locked-header">
+            <div class="locked-icon">
+                <i class="bi bi-lock-fill"></i>
+            </div>
+            <h2>Tài Kho?n B? Khóa</h2>
+        </div>
+        
+        <div class="locked-body">
+            <div class="locked-title">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                Không th? truy c?p
+            </div>
+            
+            @if (!string.IsNullOrEmpty(lockedEmail))
+            {
+                <p class="locked-message">
+                    Tài kho?n <span class="locked-email">@lockedEmail</span> ?ã b? khóa b?i qu?n tr? viên.
+                </p>
+            }
+            else
+            {
+                <p class="locked-message">
+                    Tài kho?n c?a b?n ?ã b? khóa b?i qu?n tr? viên.
+                </p>
+            }
+            
+            <div class="warning-box">
+                <i class="bi bi-info-circle"></i>
+                B?n s? không th? ??ng nh?p ho?c th?c hi?n b?t k? thao tác nào cho ??n khi tài kho?n ???c m? khóa.
+            </div>
+            
+            <p class="locked-message">
+                N?u b?n cho r?ng ?ây là nh?m l?n, vui lòng liên h? v?i chúng tôi ?? ???c h? tr?:
+            </p>
+            
+            <div class="contact-info">
+                <h6><i class="bi bi-headset"></i> Thông Tin H? Tr?</h6>
+                <div class="contact-item">
+                    <i class="bi bi-envelope"></i>
+                    <span>support@thanhlongbook.com</span>
+                </div>
+                <div class="contact-item">
+                    <i class="bi bi-telephone"></i>
+                    <span>0767 375 429</span>
+                </div>
+                <div class="contact-item">
+                    <i class="bi bi-clock"></i>
+                    <span>Th? 2 - Th? 7: 8:00 - 17:00</span>
+                </div>
+            </div>
+            
+            <a href="/" class="btn-home">
+                <i class="bi bi-house-door me-2"></i>
+                V? Trang Ch?
+            </a>
+        </div>
+    </div>
+    
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

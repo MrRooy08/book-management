@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = "Không có quy?n truy c?p";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <div class="access-denied-icon">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="fw-bold text-danger mb-3">Truy C?p B? T? Ch?i</h2>
+                    <p class="text-muted mb-4">
+                        B?n không có quy?n truy c?p vào trang này.<br/>
+                        Vui lòng liên h? qu?n tr? viên n?u b?n cho r?ng ?ây là l?i.
+                    </p>
+
+                    <div class="alert alert-warning text-start mb-4">
+                        <h6 class="alert-heading mb-2">
+                            <i class="bi bi-info-circle"></i> Lý do có th?:
+                        </h6>
+                        <ul class="mb-0 ps-3">
+                            <li>B?n ch?a ??ng nh?p</li>
+                            <li>Tài kho?n c?a b?n không có quy?n Admin</li>
+                            <li>Phiên ??ng nh?p ?ã h?t h?n</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-house"></i> V? trang ch?
+                        </a>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <i class="bi bi-box-arrow-in-right"></i> ??ng nh?p
+                            </button>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-secondary">
+                                <i class="bi bi-box-arrow-right"></i> ??ng nh?p tài kho?n khác
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="card mt-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">
+                            <i class="bi bi-person-circle"></i> Thông tin tài kho?n hi?n t?i
+                        </h6>
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td class="text-muted">Tên:</td>
+                                <td class="fw-medium">@User.Identity.Name</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Email:</td>
+                                <td class="fw-medium">@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "N/A")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Quy?n:</td>
+                                <td>
+                                    @{
+                                        var roles = User.Claims
+                                            .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+                                            .Select(c => c.Value)
+                                            .ToList();
+                                        
+                                        if (roles.Any())
+                                        {
+                                            foreach (var role in roles)
+                                            {
+                                                <span class="badge @(role == "Admin" ? "bg-danger" : "bg-primary") me-1">@role</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Không có quy?n</span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .access-denied-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(238, 90, 90, 0.3);
+        }
+    </style>
+}

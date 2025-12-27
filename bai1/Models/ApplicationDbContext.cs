@@ -19,11 +19,19 @@ namespace bai1.Models
         public DbSet<BookAuthors> BookAuthors { get; set; } = default!;
         public DbSet<BookTranslators> BookTranslators { get; set; } = default!;
 
+        public DbSet<Order> Orders { get; set; } = default!;
+        public DbSet<OrderDetail> OrderDetails { get; set; } = default!;
+        public DbSet<UserAddress> UserAddresses { get; set; } = default!;
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Book>()
+                .HasOne(b => b.Inventory)
+                .WithOne(i => i.Book)
+                .HasForeignKey<Inventory>(i => i.BookId);
 
             modelBuilder.Entity<BookAuthors>()
                 .HasKey(ba => new { ba.BookId, ba.AuthorId }); // Giả sử BookAuthors có thuộc tính BookId và AuthorId
@@ -38,7 +46,6 @@ namespace bai1.Models
                 .HasMany<Book>(p=>p.Books)
                 .WithOne(p=>p.Publisher);
 
-            // Lặp lại logic tương tự cho BookTranslators nếu cần: .Property(p => p.BookId).
             modelBuilder.Entity<BookTranslators>()
                 .HasKey(bt => new { bt.BookId, bt.TranslatorId });
 

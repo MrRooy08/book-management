@@ -1,0 +1,139 @@
+﻿@model IEnumerable<bai1.Models.Order>
+
+@{
+    ViewData["Title"] = "Kết Quả Tra Cứu";
+    var phone = ViewBag.Phone as string;
+}
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Tra cứu đơn hàng
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-telephone-fill me-2"></i>
+                Tìm thấy <strong>@Model.Count()</strong> đơn hàng với số điện thoại: <strong>@phone</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var order in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Đơn hàng #@order.Id</span>
+                        @{
+                            var statusClass = order.OrderStatus switch
+                            {
+                                "Pending" => "bg-warning text-dark",
+                                "Confirmed" => "bg-info",
+                                "Processing" => "bg-primary",
+                                "Shipping" => "bg-purple",
+                                "Delivered" => "bg-success",
+                                "Cancelled" => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+                            var statusText = order.OrderStatus switch
+                            {
+                                "Pending" => "Chờ xác nhận",
+                                "Confirmed" => "Đã xác nhận",
+                                "Processing" => "Đang xử lý",
+                                "Shipping" => "Đang giao",
+                                "Delivered" => "Đã giao",
+                                "Cancelled" => "Đã hủy",
+                                _ => order.OrderStatus
+                            };
+                        }
+                        <span class="badge @statusClass">@statusText</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+
+                        <!-- Danh sách sản phẩm -->
+                        <div class="order-items mb-3">
+                            @foreach (var item in order.OrderDetails.Take(2))
+                            {
+                                <div class="d-flex align-items-center mb-2">
+                                    @if (item.Book?.Images?.Any() == true)
+                                    {
+                                        <img src="~/@item.Book.Images.First().ImageUrl" 
+                                             alt="@item.BookTitle" 
+                                             class="me-2 rounded"
+                                             style="width: 40px; height: 55px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="me-2 bg-light rounded d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 55px;">
+                                            <i class="bi bi-book text-muted"></i>
+                                        </div>
+                                    }
+                                    <div class="flex-grow-1 small">
+                                        <div class="text-truncate" style="max-width: 150px;">@item.BookTitle</div>
+                                        <span class="text-muted">x@item.Quantity</span>
+                                    </div>
+                                    <span class="small">@item.Subtotal.ToString("N0")₫</span>
+                                </div>
+                            }
+                            @if (order.OrderDetails.Count > 2)
+                            {
+                                <small class="text-muted">
+                                    <i class="bi bi-three-dots"></i> và @(order.OrderDetails.Count - 2) sản phẩm khác
+                                </small>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Tổng tiền:</span>
+                            <span class="fw-bold text-primary fs-5">@order.TotalAmount.ToString("N0") ₫</span>
+                        </div>
+
+                        <div class="mt-2">
+                            @{
+                                var paymentStatusClass = order.PaymentStatus == "Paid" ? "text-success" : "text-warning";
+                                var paymentStatusText = order.PaymentStatus == "Paid" ? "Đã thanh toán" : "Chưa thanh toán";
+                            }
+                            <small class="@paymentStatusClass">
+                                <i class="bi @(order.PaymentStatus == "Paid" ? "bi-check-circle-fill" : "bi-clock")"></i>
+                                @paymentStatusText
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a asp-action="Details" asp-route-id="@order.Id" asp-route-phone="@phone" 
+                           class="btn btn-outline-primary w-100">
+                            <i class="bi bi-eye"></i> Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-purple {
+            background-color: #6f42c1 !important;
+            color: white;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            transition: transform 0.2s ease;
+        }
+    </style>
+}

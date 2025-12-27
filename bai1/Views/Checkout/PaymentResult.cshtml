@@ -1,0 +1,182 @@
+@model bai1.Models.Dto.PaymentResultViewModel
+@using bai1.Models
+
+@{
+    ViewData["Title"] = Model.IsSuccess ? "??t hàng thành công" : "??t hàng th?t b?i";
+    var isCOD = Model.PaymentMethod == PaymentMethodConstants.COD;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    @if (Model.IsSuccess)
+                    {
+                        <div class="mb-4">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-check fa-3x"></i>
+                            </div>
+                        </div>
+                        
+                        @if (isCOD)
+                        {
+                            <h2 class="text-success mb-3">??t hàng thành công!</h2>
+                            <p class="text-muted mb-4">
+                                C?m ?n b?n ?ã ??t hàng. B?n s? thanh toán <strong class="text-primary">@Model.Amount.ToString("N0")?</strong> khi nh?n hàng.
+                            </p>
+                        }
+                        else
+                        {
+                            <h2 class="text-success mb-3">Thanh toán thành công!</h2>
+                            <p class="text-muted mb-4">C?m ?n b?n ?ã mua hàng. ??n hàng c?a b?n ?ang ???c x? lý.</p>
+                        }
+                    }
+                    else
+                    {
+                        <div class="mb-4">
+                            <div class="bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-times fa-3x"></i>
+                            </div>
+                        </div>
+                        <h2 class="text-danger mb-3">??t hàng th?t b?i!</h2>
+                        <p class="text-muted mb-4">@Model.Message</p>
+                    }
+
+                    <div class="bg-light rounded p-4 mb-4 text-start">
+                        <h5 class="mb-3"><i class="fas fa-info-circle"></i> Chi ti?t ??n hàng</h5>
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                @if (Model.OrderId.HasValue)
+                                {
+                                    <tr>
+                                        <td class="text-muted">Mã ??n hàng:</td>
+                                        <td class="text-end fw-bold">#@Model.OrderId</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted">Ph??ng th?c thanh toán:</td>
+                                    <td class="text-end fw-bold">
+                                        @if (isCOD)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-money-bill-wave"></i> Thanh toán khi nh?n hàng
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-credit-card"></i> VNPay
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(Model.TransactionId))
+                                {
+                                    <tr>
+                                        <td class="text-muted">Mã giao d?ch:</td>
+                                        <td class="text-end fw-bold">@Model.TransactionId</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted">T?ng ti?n:</td>
+                                    <td class="text-end fw-bold text-primary fs-5">@Model.Amount.ToString("N0")?</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(Model.BankCode))
+                                {
+                                    <tr>
+                                        <td class="text-muted">Ngân hàng:</td>
+                                        <td class="text-end fw-bold">@Model.BankCode</td>
+                                    </tr>
+                                }
+                                @if (Model.PayDate.HasValue)
+                                {
+                                    <tr>
+                                        <td class="text-muted">Th?i gian thanh toán:</td>
+                                        <td class="text-end fw-bold">@Model.PayDate.Value.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted">Tr?ng thái:</td>
+                                    <td class="text-end">
+                                        @if (Model.IsSuccess)
+                                        {
+                                            @if (isCOD)
+                                            {
+                                                <span class="badge bg-info">Ch? giao hàng</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">?ã thanh toán</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Th?t b?i</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        @if (Model.IsSuccess)
+                        {
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                                <i class="fas fa-home"></i> Ti?p t?c mua s?m
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Cart" asp-action="Index" class="btn btn-primary btn-lg">
+                                <i class="fas fa-redo"></i> Th? l?i
+                            </a>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-home"></i> V? trang ch?
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.IsSuccess)
+            {
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-truck"></i> Thông tin v?n chuy?n</h6>
+                        <p class="text-muted mb-2">
+                            ??n hàng c?a b?n s? ???c giao trong vòng <strong>3-5 ngày làm vi?c</strong>.
+                        </p>
+                        @if (isCOD)
+                        {
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>L?u ý:</strong> Vui lòng chu?n b? <strong>@Model.Amount.ToString("N0")?</strong> ?? thanh toán khi nh?n hàng.
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">
+                                Chúng tôi s? g?i email xác nh?n khi ??n hàng ???c g?i ?i.
+                            </p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-3">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-headset"></i> C?n h? tr??</h6>
+                        <p class="text-muted mb-0">
+                            N?u b?n có b?t k? câu h?i nào v? ??n hàng, vui lòng liên h? v?i chúng tôi qua 
+                            <a href="mailto:support@ebook.com">support@ebook.com</a> ho?c hotline 
+                            <strong>1900-xxxx</strong>.
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

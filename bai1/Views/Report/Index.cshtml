@@ -1,0 +1,616 @@
+﻿@model bai1.Services.ReportSummary
+
+@{
+    ViewData["Title"] = "Báo Cáo & Doanh Thu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var filterType = ViewBag.FilterType as string ?? "month";
+    var year = (int)ViewBag.Year;
+    var month = (int)ViewBag.Month;
+    var quarter = (int)ViewBag.Quarter;
+    var fromDate = (DateTime)ViewBag.FromDate;
+    var toDate = (DateTime)ViewBag.ToDate;
+    var monthlyRevenue = ViewBag.MonthlyRevenue as List<bai1.Services.MonthlyRevenue>;
+    var quarterlyRevenue = ViewBag.QuarterlyRevenue as List<bai1.Services.QuarterlyRevenue>;
+    var topSellingBooks = ViewBag.TopSellingBooks as List<bai1.Services.TopSellingBook>;
+    var categoryRevenue = ViewBag.CategoryRevenue as List<bai1.Services.CategoryRevenue>;
+}
+
+<!-- Header -->
+<div class="mb-4">
+    <h2 class="fw-bold">
+        <i class="bi bi-graph-up-arrow"></i> Báo Cáo & Doanh Thu
+    </h2>
+    <p class="text-muted">Thống kê và phân tích doanh thu theo thời gian</p>
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Lọc theo</label>
+                <select name="filterType" id="filterType" class="form-select" onchange="toggleFilterFields()">
+                    <option value="month" selected="@(filterType == "month")">Theo tháng</option>
+                    <option value="quarter" selected="@(filterType == "quarter")">Theo quý</option>
+                    <option value="year" selected="@(filterType == "year")">Theo năm</option>
+                    <option value="custom" selected="@(filterType == "custom")">Tùy chọn</option>
+                </select>
+            </div>
+
+            <div class="col-md-2" id="yearField">
+                <label class="form-label">Năm</label>
+                <select name="year" class="form-select">
+                    @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 5; y--)
+                    {
+                        <option value="@y" selected="@(year == y)">@y</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2" id="monthField">
+                <label class="form-label">Tháng</label>
+                <select name="month" class="form-select">
+                    @for (int m = 1; m <= 12; m++)
+                    {
+                        <option value="@m" selected="@(month == m)">Tháng @m</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2" id="quarterField" style="display:none;">
+                <label class="form-label">Quý</label>
+                <select name="quarter" class="form-select">
+                    @for (int q = 1; q <= 4; q++)
+                    {
+                        <option value="@q" selected="@(quarter == q)">Quý @q</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2" id="fromDateField" style="display:none;">
+                <label class="form-label">Từ ngày</label>
+                <input type="date" name="fromDate" class="form-control" value="@fromDate.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-2" id="toDateField" style="display:none;">
+                <label class="form-label">Đến ngày</label>
+                <input type="date" name="toDate" class="form-control" value="@toDate.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Date Range Display -->
+<div class="alert alert-info mb-4">
+    <i class="bi bi-calendar-range"></i>
+    Đang xem báo cáo từ <strong>@fromDate.ToString("dd/MM/yyyy")</strong> đến <strong>@toDate.ToString("dd/MM/yyyy")</strong>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-2">Tổng Doanh Thu</h6>
+                        <h3 class="mb-0">@Model.TotalRevenue.ToString("N0") ₫</h3>
+                    </div>
+                    <i class="bi bi-currency-dollar" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-2">Lợi Nhuận</h6>
+                        <h3 class="mb-0">@Model.TotalProfit.ToString("N0") ₫</h3>
+                    </div>
+                    <i class="bi bi-graph-up" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-2">Đơn Hàng</h6>
+                        <h3 class="mb-0">@Model.TotalOrders</h3>
+                        <small>@Model.DeliveredOrders hoàn thành</small>
+                    </div>
+                    <i class="bi bi-box-seam" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-2">Sản Phẩm Bán</h6>
+                        <h3 class="mb-0">@Model.TotalProductsSold</h3>
+                        <small>TB: @Model.AverageOrderValue.ToString("N0") ₫/đơn</small>
+                    </div>
+                    <i class="bi bi-book" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Status Summary -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <h5 class="text-success">@Model.DeliveredOrders</h5>
+                <small class="text-muted">Đã giao hàng</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <h5 class="text-warning">@Model.PendingOrders</h5>
+                <small class="text-muted">Đang xử lý</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-danger">
+            <div class="card-body text-center">
+                <h5 class="text-danger">@Model.CancelledOrders</h5>
+                <small class="text-muted">Đã hủy</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <h5 class="text-info">@(Model.TotalOrders > 0 ? Math.Round((decimal)Model.DeliveredOrders / Model.TotalOrders * 100, 1) : 0)%</h5>
+                <small class="text-muted">Tỷ lệ thành công</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Monthly/Quarterly Revenue Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Biểu Đồ Doanh Thu Năm @year</h5>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-primary active" onclick="showMonthlyChart()">Theo tháng</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="showQuarterlyChart()">Theo quý</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Revenue -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Doanh Thu Theo Danh Mục</h5>
+            </div>
+            <div class="card-body">
+                @if (categoryRevenue != null && categoryRevenue.Any())
+                {
+                    <div class="chart-container" style="position: relative; height: 220px; width: 100%;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        @foreach (var cat in categoryRevenue.Take(5))
+                        {
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>@cat.CategoryName</span>
+                                <span class="fw-bold">@cat.Revenue.ToString("N0") ₫</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4">Chưa có dữ liệu</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Monthly Revenue Table -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calendar-month"></i> Doanh Thu Theo Tháng (@year)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tháng</th>
+                                <th class="text-end">Doanh thu</th>
+                                <th class="text-center">Đơn hàng</th>
+                                <th class="text-center">SP bán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (monthlyRevenue != null)
+                            {
+                                @foreach (var m in monthlyRevenue)
+                                {
+                                    <tr class="@(m.Month == DateTime.Now.Month && year == DateTime.Now.Year ? "table-active" : "")">
+                                        <td>Tháng @m.Month</td>
+                                        <td class="text-end fw-bold">@m.Revenue.ToString("N0") ₫</td>
+                                        <td class="text-center">@m.OrderCount</td>
+                                        <td class="text-center">@m.ProductsSold</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th>Tổng cộng</th>
+                                <th class="text-end text-primary">@(monthlyRevenue?.Sum(m => m.Revenue).ToString("N0") ?? "0") ₫</th>
+                                <th class="text-center">@(monthlyRevenue?.Sum(m => m.OrderCount) ?? 0)</th>
+                                <th class="text-center">@(monthlyRevenue?.Sum(m => m.ProductsSold) ?? 0)</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quarterly Revenue Table -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calendar3"></i> Doanh Thu Theo Quý (@year)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Quý</th>
+                                <th class="text-end">Doanh thu</th>
+                                <th class="text-center">Đơn hàng</th>
+                                <th class="text-center">SP bán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (quarterlyRevenue != null)
+                            {
+                                @foreach (var q in quarterlyRevenue)
+                                {
+                                    var currentQuarter = (DateTime.Now.Month - 1) / 3 + 1;
+                                    <tr class="@(q.Quarter == currentQuarter && year == DateTime.Now.Year ? "table-active" : "")">
+                                        <td>@q.QuarterName</td>
+                                        <td class="text-end fw-bold">@q.Revenue.ToString("N0") ₫</td>
+                                        <td class="text-center">@q.OrderCount</td>
+                                        <td class="text-center">@q.ProductsSold</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th>Tổng cộng</th>
+                                <th class="text-end text-primary">@(quarterlyRevenue?.Sum(q => q.Revenue).ToString("N0") ?? "0") ₫</th>
+                                <th class="text-center">@(quarterlyRevenue?.Sum(q => q.OrderCount) ?? 0)</th>
+                                <th class="text-center">@(quarterlyRevenue?.Sum(q => q.ProductsSold) ?? 0)</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Selling Books -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-trophy"></i> Top 10 Sách Bán Chạy</h5>
+                <a asp-action="Orders" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-list"></i> Xem chi tiết đơn hàng
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Sản phẩm</th>
+                                <th class="text-end">Giá bán</th>
+                                <th class="text-center">SL bán</th>
+                                <th class="text-end">Doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (topSellingBooks != null && topSellingBooks.Any())
+                            {
+                                var rank = 1;
+                                @foreach (var book in topSellingBooks)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (rank <= 3)
+                                            {
+                                                <span class="badge @(rank == 1 ? "bg-warning" : rank == 2 ? "bg-secondary" : "bg-danger")">
+                                                    <i class="bi bi-trophy"></i> @rank
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span>@rank</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(book.ImageUrl))
+                                                {
+                                                    <img src="~/@book.ImageUrl" alt="@book.BookTitle" 
+                                                         class="me-3" style="width: 40px; height: 55px; object-fit: cover;" />
+                                                }
+                                                <a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId" class="text-decoration-none">
+                                                    @book.BookTitle
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td class="text-end">@book.SalePrice.ToString("N0") ₫</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">@book.QuantitySold</span>
+                                        </td>
+                                        <td class="text-end fw-bold text-success">@book.TotalRevenue.ToString("N0") ₫</td>
+                                    </tr>
+                                    rank++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="bi bi-inbox" style="font-size: 2rem; color: #ccc;"></i>
+                                        <p class="text-muted mt-2">Chưa có dữ liệu bán hàng trong khoảng thời gian này</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            border-radius: 8px;
+        }
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid rgba(0,0,0,0.125);
+        }
+        .table th {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .table-active {
+            background-color: rgba(13, 110, 253, 0.1) !important;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+        }
+        .chart-container canvas {
+            max-width: 100%;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Monthly Revenue Data - sử dụng camelCase options
+        var monthlyData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthlyRevenue ?? new List<bai1.Services.MonthlyRevenue>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        
+        // Quarterly Revenue Data
+        var quarterlyData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(quarterlyRevenue ?? new List<bai1.Services.QuarterlyRevenue>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        
+        // Category Revenue Data
+        var categoryData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(categoryRevenue ?? new List<bai1.Services.CategoryRevenue>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+
+        var revenueChart;
+        var categoryChart;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Monthly Data:', monthlyData);
+            console.log('Quarterly Data:', quarterlyData);
+            console.log('Category Data:', categoryData);
+            
+            initMonthlyChart();
+            initCategoryChart();
+            toggleFilterFields();
+        });
+
+        function initMonthlyChart() {
+            var ctx = document.getElementById('revenueChart');
+            if (!ctx) {
+                console.error('Canvas revenueChart not found');
+                return;
+            }
+            
+            var labels = monthlyData.map(function(d) { return 'T' + d.month; });
+            var data = monthlyData.map(function(d) { return d.revenue; });
+            
+            console.log('Chart Labels:', labels);
+            console.log('Chart Data:', data);
+            
+            revenueChart = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (₫)',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) {
+                                        return (value / 1000000).toFixed(1) + 'M ₫';
+                                    } else if (value >= 1000) {
+                                        return (value / 1000).toFixed(0) + 'K ₫';
+                                    }
+                                    return value.toLocaleString('vi-VN') + ' ₫';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString('vi-VN') + ' ₫';
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        function showMonthlyChart() {
+            if (!revenueChart) return;
+            
+            revenueChart.data.labels = monthlyData.map(function(d) { return 'T' + d.month; });
+            revenueChart.data.datasets[0].data = monthlyData.map(function(d) { return d.revenue; });
+            revenueChart.update();
+            
+            document.querySelectorAll('.btn-group .btn').forEach(function(btn) { btn.classList.remove('active'); });
+            event.target.classList.add('active');
+        }
+
+        function showQuarterlyChart() {
+            if (!revenueChart) return;
+            
+            revenueChart.data.labels = quarterlyData.map(function(d) { return d.quarterName; });
+            revenueChart.data.datasets[0].data = quarterlyData.map(function(d) { return d.revenue; });
+            revenueChart.update();
+            
+            document.querySelectorAll('.btn-group .btn').forEach(function(btn) { btn.classList.remove('active'); });
+            event.target.classList.add('active');
+        }
+
+        function initCategoryChart() {
+            if (!categoryData || categoryData.length === 0) {
+                console.log('No category data available');
+                return;
+            }
+            
+            var ctx = document.getElementById('categoryChart');
+            if (!ctx) {
+                console.error('Canvas categoryChart not found');
+                return;
+            }
+            
+            var topCategories = categoryData.slice(0, 5);
+            var labels = topCategories.map(function(d) { return d.categoryName; });
+            var data = topCategories.map(function(d) { return d.revenue; });
+            
+            console.log('Category Labels:', labels);
+            console.log('Category Data:', data);
+            
+            categoryChart = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 10
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.toLocaleString('vi-VN') + ' ₫';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleFilterFields() {
+            var filterType = document.getElementById('filterType').value;
+            
+            document.getElementById('monthField').style.display = filterType === 'month' ? 'block' : 'none';
+            document.getElementById('quarterField').style.display = filterType === 'quarter' ? 'block' : 'none';
+            document.getElementById('yearField').style.display = filterType !== 'custom' ? 'block' : 'none';
+            document.getElementById('fromDateField').style.display = filterType === 'custom' ? 'block' : 'none';
+            document.getElementById('toDateField').style.display = filterType === 'custom' ? 'block' : 'none';
+        }
+    </script>
+}

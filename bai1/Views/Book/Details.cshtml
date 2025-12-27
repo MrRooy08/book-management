@@ -1,118 +1,434 @@
 ﻿@model bai1.Models.Dto.BookDetailsViewModel
 
 @{
-	ViewData["Title"] = Model.Book?.Title ?? "Book Details";
+	ViewData["Title"] = Model.Book?.Title ?? "Chi tiết sách";
 }
 
-<div class="container mt-4">
+<style>
+	.product-image-container {
+		background: #fff;
+		border-radius: 12px;
+		padding: 20px;
+		box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+	}
+
+	.main-image {
+		width: 100%;
+		height: 450px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #fafafa;
+		border-radius: 8px;
+		overflow: hidden;
+		margin-bottom: 15px;
+	}
+
+	.main-image img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+	}
+
+	.thumbnail-list {
+		display: flex;
+		gap: 10px;
+		flex-wrap: wrap;
+	}
+
+	.thumbnail-item {
+		width: 80px;
+		height: 80px;
+		border: 2px solid #e0e0e0;
+		border-radius: 6px;
+		overflow: hidden;
+		cursor: pointer;
+		transition: border-color 0.2s;
+	}
+
+	.thumbnail-item:hover,
+	.thumbnail-item.active {
+		border-color: #ee4d2d;
+	}
+
+	.thumbnail-item img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.product-info {
+		background: #fff;
+		border-radius: 12px;
+		padding: 25px;
+		box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+	}
+
+	.product-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #333;
+		line-height: 1.4;
+		margin-bottom: 15px;
+	}
+
+	.product-badges {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 15px;
+		flex-wrap: wrap;
+	}
+
+	.price-box {
+		background: linear-gradient(90deg, #ffeee8, #fff5f2);
+		padding: 20px;
+		border-radius: 8px;
+		margin-bottom: 20px;
+	}
+
+	.price-original {
+		font-size: 1rem;
+		color: #929292;
+		text-decoration: line-through;
+	}
+
+	.price-sale {
+		font-size: 2rem;
+		font-weight: 700;
+		color: #ee4d2d;
+	}
+
+	.discount-tag {
+		background: #ee4d2d;
+		color: #fff;
+		padding: 3px 8px;
+		border-radius: 4px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		margin-left: 10px;
+	}
+
+	.quantity-selector {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		margin-bottom: 20px;
+	}
+
+	.quantity-input {
+		display: flex;
+		align-items: center;
+		border: 1px solid #e0e0e0;
+		border-radius: 4px;
+	}
+
+	.quantity-input button {
+		width: 40px;
+		height: 40px;
+		border: none;
+		background: #f5f5f5;
+		cursor: pointer;
+		font-size: 1.2rem;
+	}
+
+	.quantity-input input {
+		width: 60px;
+		height: 40px;
+		border: none;
+		text-align: center;
+		font-size: 1rem;
+	}
+
+	.btn-add-cart {
+		background: #ff6533;
+		border: 1px solid #ee4d2d;
+		color: #ee4d2d;
+		background: rgba(255,87,34,0.1);
+		padding: 12px 30px;
+		border-radius: 4px;
+		font-weight: 600;
+		transition: all 0.2s;
+	}
+
+	.btn-add-cart:hover {
+		background: rgba(255,87,34,0.15);
+	}
+
+	.btn-buy-now {
+		background: #ee4d2d;
+		border: none;
+		color: #fff;
+		padding: 12px 40px;
+		border-radius: 4px;
+		font-weight: 600;
+		transition: all 0.2s;
+	}
+
+	.btn-buy-now:hover {
+		background: #d73211;
+	}
+
+	.product-details-section {
+		background: #fff;
+		border-radius: 12px;
+		padding: 25px;
+		margin-top: 20px;
+		box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+	}
+
+	.section-title {
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: #333;
+		padding-bottom: 15px;
+		border-bottom: 1px solid #f0f0f0;
+		margin-bottom: 20px;
+	}
+
+	.detail-row {
+		display: flex;
+		padding: 10px 0;
+		border-bottom: 1px solid #f8f8f8;
+	}
+
+	.detail-label {
+		width: 150px;
+		color: #757575;
+		flex-shrink: 0;
+	}
+
+	.detail-value {
+		color: #333;
+		font-weight: 500;
+	}
+
+	.free-shipping {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: #00bfa5;
+		font-size: 0.9rem;
+		margin-bottom: 15px;
+	}
+</style>
+
+<div class="container mt-4 mb-5">
+	<!-- Breadcrumb -->
+	<nav aria-label="breadcrumb" class="mb-3">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+			<li class="breadcrumb-item active">@Model.Book.Title</li>
+		</ol>
+	</nav>
+
 	<div class="row g-4">
-		<div class="col-md-6">
-			<div class="card p-3" style="border-radius:8px;">
-				<div id="bookCarousel" class="carousel slide" data-bs-ride="carousel">
-					<div class="carousel-inner">
-						@if (Model.Book.Images != null && Model.Book.Images.Any())
+		<!-- Phần ảnh sản phẩm -->
+		<div class="col-lg-5 col-md-6">
+			<div class="product-image-container">
+				<!-- Ảnh chính -->
+				<div class="main-image" id="mainImageContainer">
+					@if (Model.Book.Images?.Any() == true)
+					{
+						var primaryImage = Model.Book.Images.FirstOrDefault();
+						<img src="~/@primaryImage?.ImageUrl" alt="@Model.Book.Title" id="mainImage" />
+					}
+					else
+					{
+						<i class="fas fa-book" style="font-size:120px; color:#e0e0e0;"></i>
+					}
+				</div>
+
+				<!-- Thumbnails -->
+				@if (Model.Book.Images?.Count() > 1)
+				{
+					<div class="thumbnail-list">
+						@foreach (var img in Model.Book.Images)
 						{
-							int idx = 0;
-							foreach (var img in Model.Book.Images)
-							{
-								<div class="carousel-item @(idx == 0 ? "active" : "")">
-									<div class="d-flex align-items-center justify-content-center" style="height:420px;">
-										<img src="@Url.Content("~/Images/" + img.ImageUrl)" class="d-block" style="max-height:100%; max-width:100%; object-fit:contain;" />
-									</div>
-								</div>
-								idx++;
-							}
-						}
-						else
-						{
-							<div class="carousel-item active">
-								<div class="d-flex align-items-center justify-content-center" style="height:420px;">
-									<i class="fas fa-book" style="font-size:96px; color:#e6e6e6"></i>
-								</div>
+							<div class="thumbnail-item @(img == Model.Book.Images.First() ? "active" : "")" 
+								 onclick="changeImage(this, '~/@img.ImageUrl')">
+								<img src="~/@img.ImageUrl" alt="@Model.Book.Title" />
 							</div>
 						}
 					</div>
-					@if (Model.Book.Images != null && Model.Book.Images.Count() > 1)
-					{
-						<button class="carousel-control-prev" type="button" data-bs-target="#bookCarousel" data-bs-slide="prev">
-							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-							<span class="visually-hidden">Previous</span>
-						</button>
-						<button class="carousel-control-next" type="button" data-bs-target="#bookCarousel" data-bs-slide="next">
-							<span class="carousel-control-next-icon" aria-hidden="true"></span>
-							<span class="visually-hidden">Next</span>
-						</button>
-					}
-				</div>
+				}
 			</div>
 		</div>
-		<div class="col-md-6">
-			<span class="badge  fw-medium"
-				  style="background-color: #efe3d3;
-												color: #1e4a78;
-										padding: 0.5em 0.8em;">
-				@Model.Book.Format
-			</span>
 
-			<span class="badge text-bg-primary">
-				-20%
-			</span>
-			<h2 class="fw-bold">@Model.Book.Title</h2>
-			<p class="text-muted mb-2"><i class="fa-regular fa-user"></i> by @string.Join(", ", Model.Book.Authors?.Select(a => a.Author?.Name) ?? new string[0])</p>
+		<!-- Phần thông tin sản phẩm -->
+		<div class="col-lg-7 col-md-6">
+			<div class="product-info">
+				<!-- Badges -->
+				<div class="product-badges">
+					<span class="badge fw-medium" style="background-color:#efe3d3; color:#1e4a78; padding:0.5em 0.8em;">
+						@Model.Book.Format
+					</span>
+					@if (Model.DiscountPercent > 0)
+					{
+						<span class="badge text-bg-danger">Giảm @Model.DiscountPercent.ToString("F0")%</span>
+					}
+				</div>
 
-			<div class="card p-3 mb-4" style="border-radius:8px;">
-				<div class="d-flex align-items-center justify-content-between">
-					<div>
-						<div class="text-muted" style="text-decoration: line-through;">@Model.Book.ListPrice.ToString("N2")đ</div>
-						<div class="fs-3 fw-bold text-warning">@Model.Book.SalePrice.ToString("N2")đ</div>
-					</div>
-					<div>
+				<!-- Tiêu đề -->
+				<h1 class="product-title">@Model.Book.Title</h1>
+
+				<!-- Tác giả -->
+				@if (Model.Book.Authors?.Any() == true)
+				{
+					<p class="text-muted mb-3">
+						<i class="fa-regular fa-user me-1"></i> 
+						Tác giả: <strong>@string.Join(", ", Model.Book.Authors.Select(a => a.Author?.Name ?? ""))</strong>
+					</p>
+				}
+
+				<!-- Giá -->
+				<div class="price-box">
+					@if (Model.DiscountPercent > 0)
+					{
+						<span class="price-original">@Model.Book.ListPrice.ToString("N0")₫</span>
+					}
+					<div class="d-flex align-items-center">
+						<span class="price-sale">@Model.Book.SalePrice.ToString("N0")₫</span>
 						@if (Model.DiscountPercent > 0)
 						{
-							<span class="badge bg-warning text-dark">Save @Model.DiscountPercent.ToString("F0")%</span>
+							<span class="discount-tag">-@Model.DiscountPercent.ToString("F0")%</span>
 						}
 					</div>
 				</div>
 
-				<p class="text-muted mt-2">Free shipping on orders over $50</p>
-				<form method="post" asp-action="AddToCart">
-					<div class="input-group mb-2">
-						<input type="hidden" name="bookId" value="@Model.Book.Id" />
-						<input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width:120px;" />
-						<button type="submit" class="btn btn-warning ms-2"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+				<!-- Free shipping -->
+				<div class="free-shipping">
+					<i class="fas fa-truck"></i>
+					<span>Miễn phí vận chuyển cho đơn hàng từ 500.000₫</span>
+				</div>
+
+				<!-- Số lượng -->
+				<div class="quantity-selector">
+					<span class="text-muted">Số lượng:</span>
+					<div class="quantity-input">
+						<button type="button" onclick="decreaseQty()">-</button>
+						<input type="number" id="quantityInput" value="1" min="1" />
+						<button type="button" onclick="increaseQty()">+</button>
 					</div>
-				</form>
+				</div>
+
+				<!-- Nút hành động -->
+				<div class="d-flex gap-3 flex-wrap">
+					<!-- Form Thêm vào giỏ hàng -->
+					<form method="post" asp-controller="Book" asp-action="AddToCart" style="display:inline;">
+						<input type="hidden" name="bookId" value="@Model.Book.Id" />
+						<input type="hidden" name="quantity" id="addToCartQty" value="1" />
+						<button type="submit" class="btn-add-cart">
+							<i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+						</button>
+					</form>
+
+					<!-- Form Mua ngay -->
+					<form method="post" asp-controller="Book" asp-action="BuyNow" style="display:inline;">
+						<input type="hidden" name="bookId" value="@Model.Book.Id" />
+						<input type="hidden" name="quantity" id="buyNowQty" value="1" />
+						<button type="submit" class="btn-buy-now">
+							<i class="fas fa-bolt me-2"></i>Mua ngay
+						</button>
+					</form>
+				</div>
 			</div>
 
-			<h5>Description</h5>
-			<p class="text-muted">@Model.Book.Description</p>
-			<p class="text-muted">@Model.Book.ShortDescription</p>
-
-			<hr />
-
-			<h5>Book Details</h5>
-			<div class="row">
-				<div class="col-6">
-					<p class="mb-1"><strong><i class="fa-solid fa-book-open"></i> Pages</strong></p>
-					<p class="text-muted font-monospace fw-bold">@Model.Book.PageCount</p>
-
-					<p class="mb-1"><strong><i class="fa-solid fa-calendar"></i> Published</strong></p>
-					<p class="text-muted font-monospace fw-bold">@Model.Book.PublishDate.ToShortDateString()</p>
-
-					<p class="mb-1"><strong><i class="fa-solid fa-ruler"></i> Dimensions</strong></p>
-					<p class="text-muted font-monospace fw-bold">@Model.Book.Dimensions?.Length x @Model.Book.Dimensions?.Width x @Model.Book.Dimensions?.Height cm</p>
-
-					<p class="mb-1"><strong><i class="fa-solid fa-book-open"></i> ISBN</strong></p>
-					<p class="text-muted font-monospace fw-bold">@Model.Book.ISBN</p>
+			<!-- Chi tiết sản phẩm -->
+			<div class="product-details-section">
+				<h5 class="section-title"><i class="fas fa-list-alt me-2"></i>Chi tiết sản phẩm</h5>
+				
+				<div class="detail-row">
+					<span class="detail-label">ISBN</span>
+					<span class="detail-value">@Model.Book.ISBN</span>
 				</div>
-				<div class="col-6">
-					<p class="mb-1"><strong><i class="fa-solid fa-language"></i> Language</strong></p>
-					<p class="text-muted font-monospace fw-bold" >@Model.Book.Language</p>
-
-					<p class="mb-1"><strong><i class="fa-solid fa-box"></i> Format</strong></p>
-					<p class="text-muted font-monospace fw-bold" >@Model.Book.Format</p>
+				<div class="detail-row">
+					<span class="detail-label">Số trang</span>
+					<span class="detail-value">@Model.Book.PageCount trang</span>
 				</div>
+				<div class="detail-row">
+					<span class="detail-label">Ngày xuất bản</span>
+					<span class="detail-value">@Model.Book.PublishDate.ToString("dd/MM/yyyy")</span>
+				</div>
+				<div class="detail-row">
+					<span class="detail-label">Ngôn ngữ</span>
+					<span class="detail-value">@Model.Book.Language</span>
+				</div>
+				<div class="detail-row">
+					<span class="detail-label">Định dạng</span>
+					<span class="detail-value">@Model.Book.Format</span>
+				</div>
+				@if (Model.Book.Dimensions != null)
+				{
+					<div class="detail-row">
+						<span class="detail-label">Kích thước</span>
+						<span class="detail-value">@Model.Book.Dimensions.Length x @Model.Book.Dimensions.Width x @Model.Book.Dimensions.Height cm</span>
+					</div>
+				}
+				@if (Model.Book.Publisher != null)
+				{
+					<div class="detail-row">
+						<span class="detail-label">Nhà xuất bản</span>
+						<span class="detail-value">@Model.Book.Publisher.Name</span>
+					</div>
+				}
 			</div>
 		</div>
 	</div>
+
+	<!-- Mô tả sản phẩm -->
+	<div class="product-details-section mt-4">
+		<h5 class="section-title"><i class="fas fa-file-alt me-2"></i>Mô tả sản phẩm</h5>
+		@if (!string.IsNullOrEmpty(Model.Book.Description))
+		{
+			<p style="line-height:1.8; color:#333;">@Model.Book.Description</p>
+		}
+		@if (!string.IsNullOrEmpty(Model.Book.ShortDescription))
+		{
+			<p style="line-height:1.8; color:#666;">@Model.Book.ShortDescription</p>
+		}
+		@if (string.IsNullOrEmpty(Model.Book.Description) && string.IsNullOrEmpty(Model.Book.ShortDescription))
+		{
+			<p class="text-muted">Chưa có mô tả cho sản phẩm này.</p>
+		}
+	</div>
+
+	<!-- Nút quay lại -->
+	<div class="mt-4">
+		<a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+			<i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
+		</a>
+	</div>
 </div>
+
+<script>
+	function changeImage(thumbnail, imageUrl) {
+		document.getElementById('mainImage').src = imageUrl;
+		document.querySelectorAll('.thumbnail-item').forEach(t => t.classList.remove('active'));
+		thumbnail.classList.add('active');
+	}
+
+	function updateQuantityInputs() {
+		var qty = document.getElementById('quantityInput').value;
+		document.getElementById('addToCartQty').value = qty;
+		document.getElementById('buyNowQty').value = qty;
+	}
+
+	function increaseQty() {
+		var input = document.getElementById('quantityInput');
+		input.value = parseInt(input.value) + 1;
+		updateQuantityInputs();
+	}
+
+	function decreaseQty() {
+		var input = document.getElementById('quantityInput');
+		if (parseInt(input.value) > 1) {
+			input.value = parseInt(input.value) - 1;
+			updateQuantityInputs();
+		}
+	}
+
+	// Cập nhật khi người dùng nhập trực tiếp
+	document.getElementById('quantityInput').addEventListener('change', updateQuantityInputs);
+	document.getElementById('quantityInput').addEventListener('input', updateQuantityInputs);
+</script>
+

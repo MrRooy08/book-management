@@ -4,7 +4,7 @@
 
 <div id="modalLabel">
     <div class="modal-header">
-        <h5 class="modal-title" >Login</h5>
+        <h5 class="modal-title" >Đăng nhập</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">
@@ -12,20 +12,20 @@
 
             <div class="mb-3">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <label asp-for="Username" class="form-label">Username<span class="text-danger"> *</span></label>
+                <label asp-for="Username" class="form-label">Tài khoản<span class="text-danger"> *</span></label>
                 <input asp-for="Username" class="form-control" required />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="Password" class="form-label">Password<span class="text-danger"> *</span></label>
+                <label asp-for="Password" class="form-label">Mật khẩu<span class="text-danger"> *</span></label>
                 <input asp-for="Password" class="form-control" type="password" required />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <input type="submit" value="Login" class="btn btn-primary" />
+            <input type="submit" value="Đăng nhập" class="btn btn-primary" />
         </form>
         <div class="d-flex mt-3 gap-3 ">
-        <p style="color: gray; ">Don't have account ? </p>
-        <button id="registerBtn">Register here</button>
+        <p style="color: gray; ">Không có tài khoản ? </p>
+        <button id="registerBtn">Đăng ký tại đây</button>
     </div>
     </div>
 </div>        

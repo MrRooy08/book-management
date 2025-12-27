@@ -45,3 +45,441 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+
+/* Header and Navbar z-index fix */
+header {
+    position: relative;
+    z-index: 1030;
+}
+
+header .navbar {
+    position: relative;
+    z-index: 1030;
+}
+
+/* Khi modal mở, giảm z-index của header */
+body.modal-open header {
+    z-index: 1020 !important;
+}
+
+body.modal-open header .navbar {
+    z-index: 1020 !important;
+}
+
+/* ==================== User Dropdown Styles ==================== */
+.user-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    z-index: 1035;
+}
+
+.user-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-dropdown-toggle:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+/* Admin avatar styling */
+.user-avatar.admin-avatar {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #dc3545;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #212529;
+    font-size: 14px;
+}
+
+.user-role {
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    color: #6c757d;
+    transition: transform 0.3s ease;
+}
+
+.user-dropdown-wrapper.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 280px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1036;
+    overflow: hidden;
+}
+
+.user-dropdown-wrapper.active .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Arrow pointer */
+.user-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 24px;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    transform: rotate(45deg);
+    box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.04);
+}
+
+/* Dropdown Header */
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* Admin header styling */
+.dropdown-header.admin-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.header-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.header-email {
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+/* Admin Section Title */
+.admin-section-title {
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #dc3545;
+    background: #fff5f5;
+    letter-spacing: 0.5px;
+}
+
+/* Dropdown Items */
+.dropdown-items {
+    list-style: none;
+    padding: 8px 0;
+    margin: 0;
+}
+
+.dropdown-items .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.dropdown-items .dropdown-item:hover {
+    background: #f8f9fa;
+    color: #667eea;
+}
+
+.dropdown-items .dropdown-item i:first-child {
+    width: 20px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.dropdown-items .dropdown-item span {
+    flex: 1;
+    font-size: 14px;
+}
+
+.dropdown-items .dropdown-item .item-arrow {
+    font-size: 10px;
+    color: #adb5bd;
+    opacity: 0;
+    transform: translateX(-5px);
+    transition: all 0.2s ease;
+}
+
+.dropdown-items .dropdown-item:hover .item-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Admin Item */
+.dropdown-items .admin-item {
+    color: #dc3545;
+}
+
+.dropdown-items .admin-item:hover {
+    background: #fff5f5;
+    color: #c82333;
+}
+
+.dropdown-items .admin-item i:first-child {
+    color: #dc3545;
+}
+
+/* Dropdown Divider */
+.user-dropdown-menu .dropdown-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 0;
+    border: none;
+}
+
+/* Dropdown Footer */
+.dropdown-footer {
+    padding: 12px 16px;
+    background: #f8f9fa;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #ee5a5a 0%, #dc3545 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(238, 90, 90, 0.4);
+}
+
+/* Hide old custom dropdown */
+.custom_dropdown {
+    display: none !important;
+}
+
+/* ==================== Category dropdown styles ==================== */
+.category-dropdown {
+    min-width: 260px;
+    max-height: 600px;
+    padding: 0;
+    overflow: visible;
+}
+
+.category-vertical-menu {
+    position: relative;
+    width: 260px;
+    background-color: #ffffff;
+    border: 1px solid #e5e5e5;
+}
+
+.category-vertical-item {
+    position: relative;
+}
+
+.category-vertical-link {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 0.9rem;
+    color: #212529;
+    text-decoration: none;
+    border-bottom: 1px solid #f1f1f1;
+    background-color: #ffffff;
+}
+
+.category-vertical-link i.fa-book {
+    width: 20px;
+}
+
+.category-vertical-link:hover,
+.category-vertical-item.active > .category-vertical-link {
+    background-color: #f5f5f5;
+    color: #0d6efd;
+}
+
+.category-submenu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    min-width: 260px;
+    background-color: #ffffff;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0.75rem 0.9rem;
+    display: none;
+    z-index: 1050;
+}
+
+.category-vertical-item:hover > .category-submenu {
+    display: block;
+}
+
+.category-submenu-item {
+    display: block;
+    padding: 0.3rem 0;
+    color: #212529;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.category-submenu-item:hover {
+    color: #0d6efd;
+}
+
+.category-submenu-item i {
+    width: 18px;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .user-dropdown-toggle {
+        padding: 6px 10px;
+    }
+    
+    .user-info {
+        display: none;
+    }
+    
+    .user-dropdown-menu {
+        width: 260px;
+        right: -10px;
+    }
+    
+    .dropdown-header {
+        padding: 16px 14px;
+    }
+    
+    .header-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+/* ==================== Modal Fix - Login Modal ==================== */
+/* Reset tất cả z-index để đảm bảo modal hoạt động đúng */
+#loginModal {
+    z-index: 1055 !important;
+}
+
+#loginModal .modal-dialog {
+    z-index: 1056 !important;
+    pointer-events: auto !important;
+}
+
+#loginModal .modal-content {
+    z-index: 1057 !important;
+    pointer-events: auto !important;
+    background-color: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Đảm bảo backdrop không chặn modal */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+/* Đảm bảo modal body có thể tương tác */
+#loginModal .modal-body,
+#loginModal .modal-header,
+#loginModal #modalBody,
+#loginModal form,
+#loginModal input,
+#loginModal button {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Form control trong modal */
+#loginModal .form-control {
+    pointer-events: auto !important;
+    cursor: text;
+}
+
+#loginModal .btn {
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+
+/* Khi modal mở, đảm bảo body không scroll */
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 !important;
+}

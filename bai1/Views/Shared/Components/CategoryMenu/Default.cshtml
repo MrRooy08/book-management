@@ -1,0 +1,43 @@
+﻿@model IEnumerable<bai1.Models.Category>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var parent in Model)
+    {
+        @if (parent.SubCategories != null && parent.SubCategories.Any())
+        {
+            <li class="dropdown-submenu">
+                <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <i class="fas fa-folder me-2"></i>@parent.Name
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" asp-controller="Home" asp-action="BooksByCategory" asp-route-categoryId="@parent.Id">
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    @foreach (var sub in parent.SubCategories)
+                    {
+                        <li>
+                            <a class="dropdown-item" asp-controller="Home" asp-action="BooksByCategory" asp-route-categoryId="@sub.Id">
+                                <i class="fas fa-angle-right me-2"></i>@sub.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }
+        else
+        {
+            <li>
+                <a class="dropdown-item" asp-controller="Home" asp-action="BooksByCategory" asp-route-categoryId="@parent.Id">
+                    <i class="fas fa-folder me-2"></i>@parent.Name
+                </a>
+            </li>
+        }
+    }
+}
+else
+{
+    <li><span class="dropdown-item text-muted">Chưa có danh mục</span></li>
+}

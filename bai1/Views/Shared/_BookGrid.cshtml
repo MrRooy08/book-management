@@ -23,24 +23,24 @@
 						</span>
 
 						<span class="badge text-bg-primary">
-							-20%
+							
 						</span>
 					</div>
+					
 					<div class="book-image"
 						 style="width:180px; height:240px; overflow:hidden; display:flex;
 				            align-items:center; justify-content:center; margin:0 auto;">
-						@{
-							var img = book.Images?.FirstOrDefault();
-							if (img != null && !string.IsNullOrEmpty(img.ImageUrl))
-							{
-								<img src="@Url.Content("~/Images/" + img.ImageUrl)"
-									 alt="@book.Title"
-									 style="width:100%; height:100%; object-fit:cover; object-position:center;" />
-							}
-							else
-							{
+						@if (book.Images?.Any() == true)
+						{
+							<img src="~/@book.Images.First().ImageUrl" alt="@book.Title"
+								 style="width:100%; height:100%; object-fit:cover; object-position:center;" />
+						}
+						else
+						{
+							<div class="bg-light d-flex align-items-center justify-content-center rounded"
+								 style="width:100%; height:100%;">
 								<i class="fas fa-book" style="font-size:48px; color:#cbd5e1;"></i>
-							}
+							</div>
 						}
 					</div>
 					<div class="book-content">
@@ -82,14 +82,14 @@
 								<div class="price-item">
 									<div class="price-label">Giá niêm yết</div>
 									<div style="text-decoration: line-through; color: #94a3b8;">
-										@book.SalePrice.ToString("N0")đ
+										@book.ListPrice.ToString("N0")đ
 									</div>
 								</div>
 								<div class="price-item">
 									<div class="price-label">Giá Bán</div>
 									<div class="price-value price-sale">
-										
-										@book.ListPrice.ToString("N0")đ
+
+										@book.SalePrice.ToString("N0")đ
 									</div>
 								</div>
 								@if (discount > 0)

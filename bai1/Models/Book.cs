@@ -42,7 +42,9 @@ namespace bai1.Models
         //refs
         public BookDimensions Dimensions { get; set; }
 
-        public ICollection<Inventory> Inventories { get; set; }
+        // Quan hệ 1-1 với Inventory
+        public Inventory? Inventory { get; set; }
+        
         public ICollection<Category>? Categories { get; set; } = new List<Category>();
         public ICollection<BookImage>? Images { get; set; } = new List<BookImage>();
 
@@ -55,8 +57,5 @@ namespace bai1.Models
         [Required]
         [ForeignKey("Publisher")]
         public int PublisherId { get; set; }
-
-
-
     }
 }

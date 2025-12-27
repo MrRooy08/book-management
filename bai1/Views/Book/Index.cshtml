@@ -1,289 +1,739 @@
 ﻿@model IEnumerable<bai1.Models.Book>
 
-<div class="d-flex">
-	<nav class="text-white" style="width: 350px; min-height: 100vh; border-right: 1px solid gray; background-color: bisque; padding: 1%;">
-		<ul class="nav nav-fill flex-column gap-4">
-			<li class="nav-item active">
-				<button class="nav-link btn-nav" style="cursor: pointer; padding: 15px 0" data-bs-toggle="tab" data-bs-target="#dashboard" type="button">Dashboard</button>
-			</li>
-			<li class="nav-item">
-				<button class="nav-link btn-nav" style="cursor: pointer; padding: 15px 0" data-bs-toggle="tab" data-bs-target="#book" type="button"> Book management</button>
-			</li>
-			<li class="nav-item">
-				<button class="nav-link btn-nav" style="cursor: pointer; padding: 15px 0" data-bs-toggle="tab" data-bs-target="#order" type="button">Order Management</button>
-			</li>
-			<li class="nav-item">
-				<button class="nav-link btn-nav" style="cursor: pointer; padding: 15px 0" data-bs-toggle="tab" data-bs-target="#user" type="button">User Management</button>
+@{
+    ViewData["Title"] = "Quản Lý Sách";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    
+    // Tính toán thống kê từ dữ liệu thực
+    var totalBooks = Model.Count();
+    var inStockBooks = Model.Count(b => b.Inventory != null && b.Inventory.Quantity > 0);
+    var lowStockBooks = Model.Count(b => b.Inventory != null && b.Inventory.Quantity > 0 && b.Inventory.Quantity <= 10);
+    var outOfStockBooks = Model.Count(b => b.Inventory == null || b.Inventory.Quantity == 0);
+    
+    // Tính tổng giá trị kho hàng
+    var totalInventoryValue = Model.Sum(b => (b.Inventory?.Quantity ?? 0) * b.CostPrice);
+    var totalSaleValue = Model.Sum(b => (b.Inventory?.Quantity ?? 0) * b.SalePrice);
+}
 
-			</li>
-			<li class="nav-item">
-				<button class="nav-link btn-nav" style="cursor: pointer; padding: 15px 0" data-bs-toggle="tab" data-bs-target="#report" type="button">Report and Revenue</button>
-			</li>
-		</ul>
-	</nav>
+<div class="mb-4">
+    <h2 class="fw-bold">
+        <i class="bi bi-book"></i> Quản Lý Sách
+    </h2>
+    <p class="text-muted">Thêm, sửa, xóa và quản lý kho sách</p>
+</div>
 
-	<div class="tab-content p-4 flex-grow-1 container" style="max-width: 1000px;">
-		<div class="tab-pane fade show active" id="dashboard">
-			<h3>Dashboard</h3>
-            <div class="mb-4">
-                <h1 class="h3 font-weight-bold">Books Dashboard</h1>
-                <p class="text-muted">Manage your book inventory and sales</p>
-            </div>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
-		</div>
-		<div class="tab-pane fade" id="book">
-			<h3>Book Management</h3>
-			<div>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
-				<form method="post" action="/Book/AddBook" enctype="multipart/form-data">
-					@* Hiển thị các bước sẽ cần thực hiện *@
-					<div class="step-indicator d-flex mb-4">
-						<div class="step-item active" id="indicator-1">1. Book information</div>
-						<div class="step-item" id="indicator-2">2. Price & Inventory</div>
-						<div class="step-item" id="indicator-3">3. Confirm</div>
-					</div>
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4" id="bookTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
+            <i class="bi bi-grid-1x2"></i> Tổng quan
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="book-tab" data-bs-toggle="tab" data-bs-target="#book" type="button" role="tab">
+            <i class="bi bi-plus-circle"></i> Thêm sách mới
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#list" type="button" role="tab">
+            <i class="bi bi-list"></i> Danh sách sách (@totalBooks)
+        </button>
+    </li>
+</ul>
 
-					@* Step 1 *@
-                <div class="step active" id="step-1">
-                    <h3>Step 1: Book information </h3>
-                    <div class="upload-container">
-                        <label class="form-label">Book Cover</label>
-                        <div class="upload-zone">
-                            <div class="upload-preview" id="preview-area"></div>
-                            <input type="file" id="book-cover" name="Image" class="upload-zone__input" accept="image/*" hidden>
-                            <label for="book-cover" class="upload-zone__label">
-                                <div class="upload-zone__icon">
-                                    ☁️
-                                </div>
-                                <p class="upload-zone__text">
-                                    <strong id="text-upload">Click to upload</strong> or drag and drop
-                                </p>
-                                <p class="upload-zone__hint">SVG, PNG, JPG (Max. 800x1200px)</p>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <label for="ISBN" class="form-label">ISBN <span style="color: red;">*</span> </label>
-                        <input type="text" id="ISBN" name="ISBN" maxlength="13" class="form-control required-field" />
-                    </div>
-                    <div class="mt-3">
-                        <label for="productTitle" class="form-label">Product title: <span style="color: red;">*</span></label>
-                        <input type="text" id="productTitle" name="Title" class="form-control required-field" />
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="authors" class="form-label">Authors <span style="color: red;">*</span> </label>
-                        <div>
-                            <input type="text" id="AuthorSearch" class="form-control" placeholder="Please type the author's name" />
-                            <div id="AuthorSuggestions"
-                                 class="list-group  w-100"
-                                 style="top: 100%; left: 0; z-index: 1; display: none;">
-                            </div>
-                        </div>
-                        <input type="hidden" id="AuthorIds" name="AuthorIds" class="required-field" />
-                    </div>
-
-                        <div class="form-group mt-3">
-                            <label class="form-label">Translators</label>
+<div class="tab-content" id="bookTabsContent">
+    <!-- Dashboard Tab -->
+    <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
                             <div>
-                                <input type="text" id="TranslatorSearch" class="form-control" placeholder="Search translator..." />
-
-                                <div id="TranslatorSuggestions" class="list-group w-100" style="position: absolute; z-index: 10; display: none;">
-                                </div>
+                                <h6>Tổng số sách</h6>
+                                <h2>@totalBooks</h2>
                             </div>
-
-                            <div id="SelectedTranslators" class="mt-2"></div>
-
-                            <input type="hidden" id="TranslatorData" name="TranslatorData" />
+                            <i class="bi bi-book" style="font-size: 2.5rem; opacity: 0.5;"></i>
                         </div>
-
-                    <div class="form-group mt-3">
-                        <label class="form-label">Publisher</label>
-                            <select name="PublisherId" class="form-control">
-                            <option value="">-- Choose Publisher --</option>
-
-                            @if (ViewBag.PublisherList != null)
-					        {
-						        foreach (var item in (IEnumerable<SelectListItem>)ViewBag.PublisherList)
-						        {
-                                    <option value="@item.Value">@item.Text</option>
-						        }
-					        }
-                        </select>
-                    </div>
-
-                        <div class="form-group">
-                            <label>Danh mục Cha</label>
-                            <select id="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentList">
-                                <option value="">-- Chọn danh mục cha --</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group mt-3">
-                            <label>Danh mục Con</label>
-                            <select id="SubCategoryId" name="CategoryIds" class="form-control" disabled>
-                                <option value="">-- Vui lòng chọn danh mục cha trước --</option>
-                            </select>
-                        </div>
-
-                    <div class="mt-3">
-                        <label for="publishDate" class="form-label">Publish date:<span style="color: red;">*</span> </label>
-                        <input type="date" id="publishDate" class="form-control required-field" name="PublishDate" />
-                    </div>
-
-
-                    <div style="display:flex; justify-content: space-between; ">
-                        <div>
-                            <label class="form-label" for="length">Dimensions (L x W x H)</label>
-                            <div class="dimensions-wrapper">
-                                <input type="number" class="form-input dimensions-input" id="length" placeholder="L" name="Length">
-                                <span class="dimensions-separator">&times;</span>
-                                <input type="number" class="form-input dimensions-input" id="width" placeholder="W" name="Width">
-                                <span class="dimensions-separator">&times;</span>
-                                <input type="number" class="form-input dimensions-input" id="height" placeholder="H" name="Height">
-                                <span class="dimensions-unit">cm</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="form-label" for="weight">Weight</label>
-                            <div class="input-group">
-                                <input type="number" id="weight" class="form-input" placeholder="0" name="Weight">
-                                <span class="input-group-text">gram</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="language">Language</label>
-                        <div class="select-wrapper">
-                            <select id="language" class="form-select" name="Language">
-                                <option value="vi">Vietnamese</option>
-                                <option value="en">English</option>
-                            </select>
-                            <span class="select-arrow"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="format">Format</label>
-                        <div class="select-wrapper">
-                            <select id="format" class="form-select" name="Format">
-                                <option value="paperback">Paperback (Bìa mềm)</option>
-                                <option value="hardcover">Hardcover (Bìa cứng)</option>
-                                <option value="ebook">Ebook</option>
-                            </select>
-                            <span class="select-arrow"></span>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <label for="PageCount" class="form-label">PageCount: </label>
-                        <input type="number" id="PageCount" class="form-control" name="PageCount" />
-                    </div>
-                    <div class="mt-3">
-                        <label for="Description" class="form-label">Description: </label>
-                        <input type="text" id="Description" class="form-control" name="Description" />
-                    </div>
-                    <div class="text-end mt-3">
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
                     </div>
                 </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6>Còn hàng</h6>
+                                <h2>@inStockBooks</h2>
+                            </div>
+                            <i class="bi bi-check-circle" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6>Sắp hết hàng</h6>
+                                <h2>@lowStockBooks</h2>
+                            </div>
+                            <i class="bi bi-exclamation-triangle" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6>Hết hàng</h6>
+                                <h2>@outOfStockBooks</h2>
+                            </div>
+                            <i class="bi bi-x-circle" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-					@* Step 2 *@
-					<div class="step" id="step-2">
-						<h3>Step 2: Price & Inventory </h3>
-						<div class="mb-3">
-							<label>Cost Price </label>
-							<input type="number" id="costprice" name="CostPrice"
-								   class="form-control required-field" min="0"
-								   placeholder="Please type a cost price book from Supplier" />
-						</div>
+        <!-- Thống kê giá trị kho -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card border-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted">Giá trị kho (theo giá vốn)</h6>
+                                <h3 class="text-info">@totalInventoryValue.ToString("N0") ₫</h3>
+                            </div>
+                            <i class="bi bi-box-seam text-info" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted">Giá trị kho (theo giá bán)</h6>
+                                <h3 class="text-success">@totalSaleValue.ToString("N0") ₫</h3>
+                            </div>
+                            <i class="bi bi-currency-dollar text-success" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-						<div class="mb-3">
-							<label>List Price </label>
-							<input type="number" id="listprice" name="ListPrice"
-								   class="form-control required-field" min="0"
-								   placeholder="Please type a list price book" />
-						</div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Sách mới thêm gần đây</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Sách</th>
+                                            <th>Tác giả</th>
+                                            <th>Ngày XB</th>
+                                            <th class="text-end">Giá bán</th>
+                                            <th class="text-center">Tồn kho</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var book in Model.OrderByDescending(b => b.Id).Take(5))
+                                        {
+                                            var quantity = book.Inventory?.Quantity ?? 0;
+                                            var badgeClass = quantity > 10 ? "bg-success" : quantity > 0 ? "bg-warning" : "bg-danger";
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        @if (book.Images?.Any() == true)
+                                                        {
+                                                            <img src="~/@book.Images.First().ImageUrl" alt="@book.Title" 
+                                                                 class="me-2 rounded" style="width: 40px; height: 55px; object-fit: cover;" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="me-2 bg-light d-flex align-items-center justify-content-center rounded" 
+                                                                 style="width: 40px; height: 55px;">
+                                                                <i class="bi bi-book text-muted"></i>
+                                                            </div>
+                                                        }
+                                                        <a asp-action="Details" asp-route-id="@book.Id" class="text-decoration-none">
+                                                            @book.Title
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>@(book.Authors?.FirstOrDefault()?.Author?.Name ?? "Chưa có")</td>
+                                                <td>
+                                                    <small class="text-muted">@book.PublishDate.ToString("dd/MM/yyyy")</small>
+                                                </td>
+                                                <td class="text-end">@book.SalePrice.ToString("N0") ₫</td>
+                                                <td class="text-center">
+                                                    <span class="badge @badgeClass">
+                                                        @quantity
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                <p class="text-muted mt-2">Chưa có sách nào trong hệ thống</p>
+                                <button class="btn btn-primary" onclick="document.getElementById('book-tab').click()">
+                                    <i class="bi bi-plus-circle"></i> Thêm sách đầu tiên
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-lightning"></i> Thao tác nhanh</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="document.getElementById('book-tab').click()">
+                                <i class="bi bi-plus-circle"></i> Thêm sách mới
+                            </button>
+                            <a href="/AdminOrder" class="btn btn-outline-primary">
+                                <i class="bi bi-box-seam"></i> Quản lý đơn hàng
+                            </a>
+                            <a href="/Report" class="btn btn-outline-success">
+                                <i class="bi bi-graph-up"></i> Xem báo cáo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sách sắp hết hàng -->
+                @if (lowStockBooks > 0)
+                {
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Cảnh báo tồn kho</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                @foreach (var book in Model.Where(b => b.Inventory != null && b.Inventory.Quantity > 0 && b.Inventory.Quantity <= 10).Take(5))
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <small class="text-truncate" style="max-width: 150px;">@book.Title</small>
+                                        <span class="badge bg-warning text-dark">@book.Inventory?.Quantity còn</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 
+    <!-- Add Book Tab -->
+    <div class="tab-pane fade" id="book" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Thêm Sách Mới</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/Book/AddBook" enctype="multipart/form-data">
+                    <!-- Step Indicator -->
+                    <div class="step-indicator d-flex mb-4">
+                        <div class="step-item active" id="indicator-1">1. Thông tin sách</div>
+                        <div class="step-item" id="indicator-2">2. Giá & Tồn kho</div>
+                        <div class="step-item" id="indicator-3">3. Xác nhận</div>
+                    </div>
 
-						<div class="mb-3">
-							<label>Sale Price </label>
-							<input type="number" id="saleprice" name="SalePrice"
-								   class="form-control required-field" min="0"
-								   placeholder="Please type a sale price book" />
-						</div>
+                    <!-- Step 1 -->
+                    <div class="step active" id="step-1">
+                        <h5 class="mb-4">Bước 1: Thông tin sách</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="upload-container">
+                                    <label class="form-label">Ảnh bìa sách</label>
+                                    <div class="upload-zone">
+                                        <div class="upload-preview" id="preview-area"></div>
+                                        <input type="file" id="book-cover" name="Image" class="upload-zone__input" accept="image/*" hidden>
+                                        <label for="book-cover" class="upload-zone__label">
+                                            <div class="upload-zone__icon">📚</div>
+                                            <p class="upload-zone__text">
+                                                <strong id="text-upload">Click để upload</strong>
+                                            </p>
+                                            <p class="upload-zone__hint">PNG, JPG (Tối đa 800x1200px)</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="ISBN" class="form-label">ISBN <span class="text-danger">*</span></label>
+                                        <input type="text" id="ISBN" name="ISBN" maxlength="13" class="form-control required-field" placeholder="VD: 9780747532743" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="publishDate" class="form-label">Ngày xuất bản <span class="text-danger">*</span></label>
+                                        <input type="date" id="publishDate" class="form-control required-field" name="PublishDate" />
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="productTitle" class="form-label">Tên sách <span class="text-danger">*</span></label>
+                                    <input type="text" id="productTitle" name="Title" class="form-control required-field" placeholder="Nhập tên sách..." />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="authors" class="form-label">Tác giả <span class="text-danger">*</span></label>
+                                    <input type="text" id="AuthorSearch" class="form-control" placeholder="Nhập tên tác giả..." />
+                                    <div id="AuthorSuggestions" class="list-group w-100" style="z-index: 1; display: none;"></div>
+                                    <input type="hidden" id="AuthorIds" name="AuthorIds" class="required-field" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Dịch giả</label>
+                                    <input type="text" id="TranslatorSearch" class="form-control" placeholder="Tìm dịch giả..." />
+                                    <div id="TranslatorSuggestions" class="list-group w-100" style="z-index: 10; display: none;"></div>
+                                    <div id="SelectedTranslators" class="mt-2"></div>
+                                    <input type="hidden" id="TranslatorData" name="TranslatorData" />
+                                </div>
+                            </div>
+                        </div>
 
-						<div class="mb-3">
-							<label> Inventory </label>
-							<input type="number" id="inventory" name="Inventory"
-								   class="form-control required-field" min="0" placeholder="Please type inventory of book" />
-						</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nhà xuất bản</label>
+                                <select name="PublisherId" class="form-control">
+                                    <option value="">-- Chọn NXB --</option>
+                                    @if (ViewBag.PublisherList != null)
+                                    {
+                                        foreach (var item in (IEnumerable<SelectListItem>)ViewBag.PublisherList)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Danh mục cha</label>
+                                <select id="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentList">
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Danh mục con</label>
+                                <select id="SubCategoryId" name="CategoryIds" class="form-control" disabled>
+                                    <option value="">-- Chọn danh mục cha trước --</option>
+                                </select>
+                            </div>
+                        </div>
 
-						<button type="button" class="btn btn-secondary" onclick="prevStep()">Previous</button>
-						<button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
-					</div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Kích thước (D x R x C)</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control dimension-input" id="length" placeholder="D" name="Length">
+                                    <span class="input-group-text">×</span>
+                                    <input type="text" class="form-control dimension-input" id="width" placeholder="R" name="Width">
+                                    <span class="input-group-text">×</span>
+                                    <input type="text" class="form-control dimension-input" id="height" placeholder="C" name="Height">
+                                    <span class="input-group-text">cm</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label">Trọng lượng</label>
+                                <div class="input-group">
+                                    <input type="text" id="weight" class="form-control dimension-input" placeholder="0" name="Weight">
+                                    <span class="input-group-text">gram</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label">Ngôn ngữ</label>
+                                <select id="language" class="form-select" name="Language">
+                                    <option value="vi">Tiếng Việt</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label">Định dạng</label>
+                                <select id="format" class="form-select" name="Format">
+                                    <option value="paperback">Bìa mềm</option>
+                                    <option value="hardcover">Bìa cứng</option>
+                                    <option value="ebook">Ebook</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label">Số trang</label>
+                                <input type="number" id="PageCount" class="form-control" name="PageCount" min="1" placeholder="0" />
+                            </div>
+                        </div>
 
-					@* Step 3 *@
-					<div class="step" id="step-3">
-						<h3 class="mb-4"> Step 3: Confirm </h3>
-						<p>Check the information again before completion</p>
-						<div class="form-check form-switch">
-							<h3>Publish Now ?</h3>
-							<label for="publishNow" class="form-check-label"> Publish this book </label>
-							<input class="form-check-input"
-								   type="checkbox" id="PublishNow" name="PublishNowRawOk" />
-						</div>
+                        <div class="mb-3">
+                            <label for="Description" class="form-label">Mô tả</label>
+                            <textarea id="Description" class="form-control" name="Description" rows="3" placeholder="Nhập mô tả sách..."></textarea>
+                        </div>
 
-						<button type="button" class="btn btn-secondary" onclick="prevStep()"> Back </button>
-						<button type="submit" class="btn btn-success">Finish</button>
-					</div>
-				</form>
-			</div>
-		</div>
-		<div class="tab-pane fade" id="order" >
-			<h3>Order Management</h3>
-		</div>
-		<div class="tab-pane fade" id="user">	
-			<h3>User Management</h3>
-		</div>
-		<div class="tab-pane fade" id="report">
-			<h3>Report and Revenue</h3>
-		</div>
-	</div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Tiếp theo <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
 
+                    <!-- Step 2 -->
+                    <div class="step" id="step-2">
+                        <h5 class="mb-4">Bước 2: Giá & Tồn kho</h5>
+                        
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Lưu ý:</strong> Giá niêm yết (giá bìa) phải lớn hơn hoặc bằng giá bán thực tế.
+                            <br><small>Bạn có thể nhập giá theo định dạng: 150000 hoặc 150.000</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Giá nhập (giá vốn) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" id="costprice" name="CostPrice" class="form-control required-field price-input" placeholder="VD: 50.000" />
+                                    <span class="input-group-text">₫</span>
+                                </div>
+                                <small class="text-muted">Giá mua vào từ nhà cung cấp</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Giá niêm yết (giá bìa) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" id="listprice" name="ListPrice" class="form-control required-field price-input" placeholder="VD: 150.000" />
+                                    <span class="input-group-text">₫</span>
+                                </div>
+                                <small class="text-muted">Giá gốc in trên bìa sách</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Giá bán thực tế <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" id="saleprice" name="SalePrice" class="form-control required-field price-input" placeholder="VD: 120.000" />
+                                    <span class="input-group-text">₫</span>
+                                </div>
+                                <small class="text-muted">Giá khách hàng phải trả (≤ giá niêm yết)</small>
+                            </div>
+                        </div>
+
+                        <!-- Hiển thị % giảm giá -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="card bg-light">
+                                    <div class="card-body py-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>Phần trăm giảm giá:</span>
+                                            <span id="discountPercent" class="badge bg-secondary fs-6">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số lượng tồn kho <span class="text-danger">*</span></label>
+                                <input type="number" id="inventory" name="Inventory" class="form-control required-field" min="0" placeholder="Số lượng" />
+                            </div>
+                        </div>
+
+                        <!-- Thông báo lỗi giá -->
+                        <div id="priceError" class="alert alert-danger d-none">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span id="priceErrorMessage"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Tiếp theo <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step" id="step-3">
+                        <h5 class="mb-4">Bước 3: Xác nhận</h5>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Vui lòng kiểm tra lại thông tin trước khi hoàn tất.
+                        </div>
+                        
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" id="PublishNow" name="PublishNowRawOk" />
+                            <label class="form-check-label" for="PublishNow">
+                                <strong>Xuất bản ngay?</strong> - Sách sẽ hiển thị trên website
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Hoàn tất
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book List Tab -->
+    <div class="tab-pane fade" id="list" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list"></i> Danh sách sách (@totalBooks)</h5>
+                <div class="d-flex gap-2">
+                    <select id="filterStock" class="form-select form-select-sm" style="width: auto;">
+                        <option value="all">Tất cả</option>
+                        <option value="instock">Còn hàng</option>
+                        <option value="lowstock">Sắp hết</option>
+                        <option value="outstock">Hết hàng</option>
+                    </select>
+                    <input type="text" class="form-control form-control-sm" placeholder="Tìm kiếm..." id="searchBook" style="width: 200px;" />
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="bookTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Sách</th>
+                                    <th>Tác giả</th>
+                                    <th>NXB</th>
+                                    <th>Ngày XB</th>
+                                    <th class="text-end">Giá bán</th>
+                                    <th class="text-center">Tồn kho</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var book in Model.OrderByDescending(b => b.Id))
+                                {
+                                    var quantity = book.Inventory?.Quantity ?? 0;
+                                    var stockStatus = quantity > 10 ? "instock" : quantity > 0 ? "lowstock" : "outstock";
+                                    var badgeClass = quantity > 10 ? "bg-success" : quantity > 0 ? "bg-warning" : "bg-danger";
+                                    var discount = book.ListPrice > 0 ? ((book.ListPrice - book.SalePrice) / book.ListPrice * 100) : 0;
+                                    
+                                    <tr data-stock="@stockStatus">
+                                        <td>@book.Id</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (book.Images?.Any() == true)
+                                                {
+                                                    <img src="~/@book.Images.First().ImageUrl" alt="@book.Title" 
+                                                         class="me-2 rounded" style="width: 40px; height: 55px; object-fit: cover;" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="me-2 bg-light d-flex align-items-center justify-content-center rounded" 
+                                                         style="width: 40px; height: 55px;">
+                                                        <i class="bi bi-book text-muted"></i>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    <a asp-action="Details" asp-route-id="@book.Id" class="text-decoration-none fw-medium">
+                                                        @book.Title
+                                                    </a>
+                                                    <br />
+                                                    <small class="text-muted">ISBN: @book.ISBN</small>
+                                                    @if (!string.IsNullOrEmpty(book.Format))
+                                                    {
+                                                        <span class="badge bg-light text-dark ms-1">@(book.Format == "paperback" ? "Bìa mềm" : book.Format == "hardcover" ? "Bìa cứng" : book.Format)</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@(book.Authors?.FirstOrDefault()?.Author?.Name ?? "<em class='text-muted'>Chưa có</em>")</td>
+                                        <td>@(book.Publisher?.Name ?? "<em class='text-muted'>Chưa có</em>")</td>
+                                        <td>
+                                            <small>@book.PublishDate.ToString("dd/MM/yyyy")</small>
+                                        </td>
+                                        <td class="text-end">
+                                            @if (discount > 0)
+                                            {
+                                                <span class="text-decoration-line-through text-muted small">@book.ListPrice.ToString("N0") ₫</span>
+                                                <span class="badge bg-danger ms-1">-@discount.ToString("0")%</span>
+                                                <br />
+                                            }
+                                            <span class="fw-bold text-primary">@book.SalePrice.ToString("N0") ₫</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge @badgeClass">
+                                                @quantity
+                                            </span>
+                                            @if (book.Inventory?.ReservedQuantity > 0)
+                                            {
+                                                <br />
+                                                <small class="text-muted">(@book.Inventory.ReservedQuantity đặt)</small>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-outline-primary" title="Xem">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-warning" title="Sửa">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form asp-action="Delete" asp-route-id="@book.Id" method="post" class="d-inline" 
+                                                      onsubmit="return confirm('Bạn có chắc muốn xóa sách này?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-danger" title="Xóa">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                        <p class="text-muted mt-3">Chưa có sách nào trong hệ thống</p>
+                        <button class="btn btn-primary" onclick="document.getElementById('book-tab').click()">
+                            <i class="bi bi-plus-circle"></i> Thêm sách mới
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        .step-indicator {
+            gap: 10px;
+        }
+        .step-item {
+            flex: 1;
+            padding: 12px 20px;
+            background: #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            color: #6c757d;
+        }
+        .step-item.active {
+            background: #0d6efd;
+            color: white;
+        }
+        .step-item.completed {
+            background: #198754;
+            color: white;
+        }
+        .step { display: none; }
+        .step.active { display: block; }
+        
+        .upload-zone {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .upload-zone:hover {
+            border-color: #0d6efd;
+            background: #f8f9fa;
+        }
+        .upload-zone__icon { font-size: 3rem; }
+        .upload-zone__hint { font-size: 12px; color: #6c757d; }
+
+        /* Custom styles for DataTables */
+        table.dataTable {
+            width: 100% !important;
+        }
+        div.dataTables_wrapper {
+            width: 100%;
+            margin: 0 auto;
+        }
+        .dataTables_wrapper .dataTable th,
+        .dataTables_wrapper .dataTable td {
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+        .dataTables_wrapper .dataTable thead {
+            background: #f8f9fa;
+        }
+        .dataTables_wrapper .dataTable tbody tr {
+            transition: background 0.3s;
+        }
+        .dataTables_wrapper .dataTable tbody tr:hover {
+            background: #f1f3f5;
+        }
+    </style>
+}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/bookAdmin.js" asp-append-version="true"></script>
+
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Bắt sự kiện khi Dropdown Cha thay đổi
             $('#ParentCategoryId').change(function () {
                 var parentId = $(this).val();
                 var subSelect = $('#SubCategoryId');
 
-                // Nếu user chọn "-- Chọn danh mục cha --" (value rỗng)
                 if (!parentId) {
-                    subSelect.empty().append('<option value="">-- Vui lòng chọn danh mục cha trước --</option>');
+                    subSelect.empty().append('<option value="">-- Chọn danh mục cha trước --</option>');
                     subSelect.prop('disabled', true);
                     return;
                 }
 
-                // Gọi AJAX về Server
                 $.ajax({
-                    url: '/Book/GetSubCategories', // Đường dẫn tới Action ở Bước 1
+                    url: '/Book/GetSubCategories',
                     type: 'GET',
                     data: { parentId: parentId },
                     success: function (data) {
-                        // Xóa dữ liệu cũ
                         subSelect.empty();
                         subSelect.append('<option value="">-- Chọn danh mục con --</option>');
-
-                        // Duyệt qua dữ liệu JSON trả về và thêm vào Dropdown
                         $.each(data, function (index, item) {
                             subSelect.append('<option value="' + item.id + '">' + item.name + '</option>');
                         });
-
-                        // Mở khóa Dropdown
                         subSelect.prop('disabled', false);
                     },
                     error: function () {
@@ -291,6 +741,179 @@
                     }
                 });
             });
+
+            // Search book
+            $('#searchBook').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                filterBooks();
+            });
+
+            // Filter by stock status
+            $('#filterStock').on('change', function() {
+                filterBooks();
+            });
+
+            function filterBooks() {
+                var searchValue = $('#searchBook').val().toLowerCase();
+                var stockFilter = $('#filterStock').val();
+                
+                $('#bookTable tbody tr').each(function() {
+                    var textMatch = $(this).text().toLowerCase().indexOf(searchValue) > -1;
+                    var stockMatch = stockFilter === 'all' || $(this).data('stock') === stockFilter;
+                    
+                    $(this).toggle(textMatch && stockMatch);
+                });
+            }
+
+            // Hàm parse dimension từ string (hỗ trợ format: 14.5, 14,5)
+            function parseDimension(dimensionString) {
+                if (!dimensionString) return 0;
+                
+                var cleaned = dimensionString.toString().trim()
+                    .replace(/\s/g, '')
+                    .replace(',', '.'); // Thay dấu phẩy thành dấu chấm
+                
+                return parseFloat(cleaned) || 0;
+            }
+
+            // Cho phép nhập số, dấu chấm và dấu phẩy cho dimension
+            $('.dimension-input').on('keypress', function(e) {
+                var charCode = e.which;
+                var inputVal = $(this).val();
+                
+                // Cho phép: số (48-57), dấu chấm (46), dấu phẩy (44)
+                if (charCode !== 46 && charCode !== 44 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Chỉ cho phép 1 dấu thập phân (chấm hoặc phẩy)
+                if ((charCode === 46 || charCode === 44) && (inputVal.indexOf('.') !== -1 || inputVal.indexOf(',') !== -1)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Validate và chuẩn hóa dimension khi blur
+            $('.dimension-input').on('blur', function() {
+                var value = parseDimension($(this).val());
+                if (value > 0) {
+                    // Hiển thị với dấu chấm làm thập phân
+                    $(this).val(value.toString());
+                } else if ($(this).val() !== '') {
+                    $(this).val('');
+                }
+            });
+
+            // Hàm parse giá từ string (hỗ trợ format: 150000, 150.000, 150,000)
+            function parsePrice(priceString) {
+                if (!priceString) return 0;
+                
+                var cleaned = priceString.toString().trim()
+                    .replace(/₫/g, '')
+                    .replace(/VND/gi, '')
+                    .replace(/\s/g, '');
+                
+                // Xử lý format Việt Nam (150.000)
+                if (cleaned.indexOf('.') !== -1 && cleaned.indexOf(',') === -1) {
+                    cleaned = cleaned.replace(/\./g, '');
+                }
+                // Nếu có cả dấu phẩy và dấu chấm
+                else if (cleaned.indexOf(',') !== -1 && cleaned.indexOf('.') !== -1) {
+                    // Kiểm tra định dạng: 150,000.50
+                    var parts = cleaned.split(',');
+                    if (parts.length === 2 && parts[1].length <= 2) {
+                        cleaned = cleaned.replace(/,/g, '').replace('.', ',');
+                    } else {
+                        cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+                    }
+                }
+                // Nếu chỉ có dấu phẩy
+                else if (cleaned.indexOf(',') !== -1) {
+                    var parts = cleaned.split(',');
+                    if (parts.length === 2 && parts[1].length === 3) {
+                        cleaned = cleaned.replace(/,/g, '');
+                    } else {
+                        cleaned = cleaned.replace(',', '.');
+                    }
+                }
+                
+                return parseFloat(cleaned) || 0;
+            }
+
+            // Hàm format số thành định dạng tiền tệ VN
+            function formatPrice(number) {
+                if (!number || isNaN(number)) return '';
+                return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            // Auto-format khi nhập giá
+            $('.price-input').on('blur', function() {
+                var value = parsePrice($(this).val());
+                if (value > 0) {
+                    $(this).val(formatPrice(value));
+                }
+            });
+
+            // Cho phép nhập số và dấu chấm, dấu phẩy
+            $('.price-input').on('keypress', function(e) {
+                var charCode = e.which;
+                // Cho phép: số (48-57), dấu chấm (46), dấu phẩy (44), Backspace, Delete, Tab, Escape, Enter
+                if (charCode !== 46 && charCode !== 44 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Validate giá và tính % giảm giá
+            function validateAndCalculateDiscount() {
+                var listPrice = parsePrice($('#listprice').val());
+                var salePrice = parsePrice($('#saleprice').val());
+                var costPrice = parsePrice($('#costprice').val());
+                var priceError = $('#priceError');
+                var priceErrorMessage = $('#priceErrorMessage');
+                var discountPercent = $('#discountPercent');
+                
+                var hasError = false;
+                var errorMessages = [];
+                
+                // Kiểm tra giá niêm yết >= giá bán
+                if (listPrice > 0 && salePrice > 0 && salePrice > listPrice) {
+                    errorMessages.push('Giá bán không được cao hơn giá niêm yết!');
+                    hasError = true;
+                }
+                
+                // Kiểm tra giá bán >= giá nhập (để có lợi nhuận)
+                if (salePrice > 0 && costPrice > 0 && salePrice < costPrice) {
+                    errorMessages.push('Cảnh báo: Giá bán thấp hơn giá nhập (lỗ vốn)!');
+                }
+                
+                // Hiển thị lỗi
+                if (errorMessages.length > 0) {
+                    priceErrorMessage.html(errorMessages.join('<br>'));
+                    priceError.removeClass('d-none');
+                } else {
+                    priceError.addClass('d-none');
+                }
+                
+                // Tính % giảm giá
+                if (listPrice > 0 && salePrice > 0 && listPrice >= salePrice) {
+                    var discount = ((listPrice - salePrice) / listPrice * 100).toFixed(0);
+                    discountPercent.text('-' + discount + '%');
+                    if (discount > 0) {
+                        discountPercent.removeClass('bg-secondary').addClass('bg-success');
+                    } else {
+                        discountPercent.removeClass('bg-success').addClass('bg-secondary');
+                        discountPercent.text('0%');
+                    }
+                } else {
+                    discountPercent.text('0%');
+                    discountPercent.removeClass('bg-success').addClass('bg-secondary');
+                }
+                
+                return !hasError;
+            }
+            
+            // Gắn sự kiện cho các input giá
+            $('#listprice, #saleprice, #costprice').on('input blur', validateAndCalculateDiscount);
         });
     </script>
 }

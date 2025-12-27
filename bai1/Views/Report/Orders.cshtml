@@ -1,0 +1,321 @@
+﻿@model List<bai1.Services.OrderReportItem>
+
+@{
+    ViewData["Title"] = "Chi Tiết Đơn Hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var fromDate = (DateTime)ViewBag.FromDate;
+    var toDate = (DateTime)ViewBag.ToDate;
+    var status = ViewBag.Status as string ?? "All";
+    var page = (int)ViewBag.Page;
+    var pageSize = (int)ViewBag.PageSize;
+    var totalCount = (int)ViewBag.TotalCount;
+    var totalPages = (int)ViewBag.TotalPages;
+}
+
+<!-- Header -->
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Quay lại Dashboard
+    </a>
+    <h2 class="fw-bold">
+        <i class="bi bi-list-ul"></i> Chi Tiết Đơn Hàng
+    </h2>
+    <p class="text-muted">Danh sách đơn hàng với bộ lọc và phân trang</p>
+</div>
+
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-info-circle me-2"></i>@TempData["InfoMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Từ ngày</label>
+                <input type="date" name="fromDate" class="form-control" value="@fromDate.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Đến ngày</label>
+                <input type="date" name="toDate" class="form-control" value="@toDate.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Trạng thái</label>
+                <select name="status" class="form-select">
+                    <option value="All" selected="@(status == "All")">Tất cả</option>
+                    <option value="Pending" selected="@(status == "Pending")">Chờ xác nhận</option>
+                    <option value="Confirmed" selected="@(status == "Confirmed")">Đã xác nhận</option>
+                    <option value="Processing" selected="@(status == "Processing")">Đang xử lý</option>
+                    <option value="Shipping" selected="@(status == "Shipping")">Đang giao</option>
+                    <option value="Delivered" selected="@(status == "Delivered")">Đã giao</option>
+                    <option value="Cancelled" selected="@(status == "Cancelled")">Đã hủy</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Số dòng/trang</label>
+                <select name="pageSize" class="form-select">
+                    <option value="10" selected="@(pageSize == 10)">10</option>
+                    <option value="25" selected="@(pageSize == 25)">25</option>
+                    <option value="50" selected="@(pageSize == 50)">50</option>
+                    <option value="100" selected="@(pageSize == 100)">100</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Lọc
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <a asp-action="ExportExcel" 
+                   asp-route-fromDate="@fromDate.ToString("yyyy-MM-dd")" 
+                   asp-route-toDate="@toDate.ToString("yyyy-MM-dd")"
+                   asp-route-status="@status"
+                   class="btn btn-success w-100">
+                    <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Info -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <span class="text-muted">
+            Hiển thị <strong>@(((page - 1) * pageSize) + 1)</strong> - 
+            <strong>@Math.Min(page * pageSize, totalCount)</strong> 
+            trong tổng số <strong>@totalCount</strong> đơn hàng
+        </span>
+    </div>
+    <div>
+        <span class="badge bg-primary">@totalCount đơn hàng</span>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã ĐH</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th class="text-center">SL sản phẩm</th>
+                        <th class="text-end">Tổng tiền</th>
+                        <th class="text-center">Thanh toán</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                                <p class="text-muted mt-3">Không có đơn hàng nào trong khoảng thời gian này</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">#@order.OrderId</td>
+                                <td>
+                                    <div>@order.CustomerName</div>
+                                    <small class="text-muted">@order.Phone</small>
+                                </td>
+                                <td>
+                                    @order.CreatedAt.ToString("dd/MM/yyyy")
+                                    <br />
+                                    <small class="text-muted">@order.CreatedAt.ToString("HH:mm")</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">@order.ItemCount sản phẩm</span>
+                                </td>
+                                <td class="text-end fw-bold text-primary">@order.TotalAmount.ToString("N0") ₫</td>
+                                <td class="text-center">
+                                    @if (order.PaymentMethod == "COD")
+                                    {
+                                        <span class="badge bg-warning text-dark">COD</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info">VNPay</span>
+                                    }
+                                    <br />
+                                    @if (order.PaymentStatus == "Paid")
+                                    {
+                                        <small class="text-success"><i class="bi bi-check-circle"></i> Đã TT</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted"><i class="bi bi-clock"></i> Chưa TT</small>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @switch (order.OrderStatus)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                            break;
+                                        case "Confirmed":
+                                            <span class="badge bg-info">Đã xác nhận</span>
+                                            break;
+                                        case "Processing":
+                                            <span class="badge bg-primary">Đang xử lý</span>
+                                            break;
+                                        case "Shipping":
+                                            <span class="badge bg-purple">Đang giao</span>
+                                            break;
+                                        case "Delivered":
+                                            <span class="badge bg-success">Đã giao</span>
+                                            break;
+                                        case "Cancelled":
+                                            <span class="badge bg-danger">Đã hủy</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-controller="AdminOrder" asp-action="Details" asp-route-id="@order.OrderId" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (totalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @* Previous Button *@
+            <li class="page-item @(page == 1 ? "disabled" : "")">
+                <a class="page-link" 
+                   asp-action="Orders" 
+                   asp-route-fromDate="@fromDate.ToString("yyyy-MM-dd")"
+                   asp-route-toDate="@toDate.ToString("yyyy-MM-dd")"
+                   asp-route-status="@status"
+                   asp-route-pageSize="@pageSize"
+                   asp-route-page="@(page - 1)">
+                    <i class="bi bi-chevron-left"></i> Trước
+                </a>
+            </li>
+
+            @* Page Numbers *@
+            @{
+                var startPage = Math.Max(1, page - 2);
+                var endPage = Math.Min(totalPages, page + 2);
+                
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" 
+                           asp-action="Orders"
+                           asp-route-fromDate="@fromDate.ToString("yyyy-MM-dd")"
+                           asp-route-toDate="@toDate.ToString("yyyy-MM-dd")"
+                           asp-route-status="@status"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-page="1">1</a>
+                    </li>
+                    if (startPage > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                }
+
+                for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+                        <a class="page-link" 
+                           asp-action="Orders"
+                           asp-route-fromDate="@fromDate.ToString("yyyy-MM-dd")"
+                           asp-route-toDate="@toDate.ToString("yyyy-MM-dd")"
+                           asp-route-status="@status"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                if (endPage < totalPages)
+                {
+                    if (endPage < totalPages - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link" 
+                           asp-action="Orders"
+                           asp-route-fromDate="@fromDate.ToString("yyyy-MM-dd")"
+                           asp-route-toDate="@toDate.ToString("yyyy-MM-dd")"
+                           asp-route-status="@status"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-page="@totalPages">@totalPages</a>
+                    </li>
+                }
+            }
+
+            @* Next Button *@
+            <li class="page-item @(page == totalPages ? "disabled" : "")">
+                <a class="page-link" 
+                   asp-action="Orders"
+                   asp-route-fromDate="@fromDate.ToString("yyyy-MM-dd")"
+                   asp-route-toDate="@toDate.ToString("yyyy-MM-dd")"
+                   asp-route-status="@status"
+                   asp-route-pageSize="@pageSize"
+                   asp-route-page="@(page + 1)">
+                    Sau <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="text-center text-muted">
+        <small>Trang @(page) / @totalPages</small>
+    </div>
+}
+
+@section Styles {
+    <style>
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+            border-radius: 8px;
+        }
+        .table th {
+            font-weight: 600;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+        .pagination .page-link {
+            border-radius: 4px;
+            margin: 0 2px;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    </style>
+}

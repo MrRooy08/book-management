@@ -1,6 +1,4 @@
-﻿
-
-//Trigger logic keydown 'enter' for form submission
+﻿//Trigger logic keydown 'enter' for form submission
 const form = document.querySelector('form');
 document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter' && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
@@ -326,45 +324,139 @@ function showStep(step) {
 
 }
 
+// Hàm parse giá từ string (hỗ trợ format: 150000, 150.000, 150,000)
+function parsePriceValue(priceString) {
+    if (!priceString) return 0;
+    
+    var cleaned = priceString.toString().trim()
+        .replace(/₫/g, '')
+        .replace(/VND/gi, '')
+        .replace(/\s/g, '');
+    
+    // Xử lý format Việt Nam (150.000)
+    if (cleaned.indexOf('.') !== -1 && cleaned.indexOf(',') === -1) {
+        cleaned = cleaned.replace(/\./g, '');
+    }
+    // Nếu có cả dấu chấm và dấu phẩy
+    else if (cleaned.indexOf('.') !== -1 && cleaned.indexOf(',') !== -1) {
+        cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    }
+    // Nếu chỉ có dấu phẩy
+    else if (cleaned.indexOf(',') !== -1) {
+        var parts = cleaned.split(',');
+        if (parts.length === 2 && parts[1].length === 3) {
+            cleaned = cleaned.replace(/,/g, '');
+        } else {
+            cleaned = cleaned.replace(',', '.');
+        }
+    }
+    
+    return parseFloat(cleaned) || 0;
+}
+
 function nextStep() {
     if (currentStep < 3) {
         const currentDiv = document.getElementById(`step-${currentStep}`);
         console.log("currentDivStep .... ", currentDiv);
-        const inputs = currentDiv.querySelectorAll(".required-field")
-        let costPrice = 0;
-
-        for (let input of inputs) {
-            console.log("Input ....", input);
-            if (input.value.trim() === "") {
-                alert("Please fill all fields before proceeding.");
-                input.focus();
+        const inputs = currentDiv.querySelectorAll(".required-field");
+        
+        // Kiểm tra Step 1
+        if (currentStep === 1) {
+            // Kiểm tra các trường text thông thường
+            const isbn = document.getElementById('ISBN');
+            const publishDate = document.getElementById('publishDate');
+            const title = document.getElementById('productTitle');
+            const authorIds = document.getElementById('AuthorIds');
+            
+            if (!isbn.value.trim()) {
+                alert("Vui lòng nhập ISBN!");
+                isbn.focus();
                 return;
             }
-
-            if (input.id === "costprice") {
-                costPrice = parseFloat(input.value);
-            }
-
-            if (input.id === "saleprice") {
-                const salePrice = parseFloat(input.value);
-                if (salePrice < costPrice) {
-                    alert("Price must be higher orginal price.");
-                    input.focus();
-                    return;
-                }
-                else if (salePrice < 0) {
-                    alert("Price must be 0 or higher");
-                    input.focus();
-                    return;
-                }
-            }
-
-            if (input.id === "inventory" && parseInt(input.value) < 0) {
-                alert("Inventory must be 0 or higher.");
-                input.focus();
+            
+            if (!publishDate.value.trim()) {
+                alert("Vui lòng chọn ngày xuất bản!");
+                publishDate.focus();
                 return;
-            }   
+            }
+            
+            if (!title.value.trim()) {
+                alert("Vui lòng nhập tên sách!");
+                title.focus();
+                return;
+            }
+            
+            // Kiểm tra tác giả - có thể chưa lưu vào hidden input
+            if (!authorIds.value.trim() && authorSelected.length === 0) {
+                alert("Vui lòng chọn ít nhất một tác giả!");
+                document.getElementById('AuthorSearch').focus();
+                return;
+            }
+            
+            // Nếu có author đã chọn nhưng chưa lưu vào hidden input
+            if (authorSelected.length > 0 && !authorIds.value.trim()) {
+                authorIds.value = JSON.stringify(authorSelected);
+            }
         }
+        
+        // Kiểm tra Step 2 - Giá và tồn kho
+        if (currentStep === 2) {
+            const costPriceInput = document.getElementById('costprice');
+            const listPriceInput = document.getElementById('listprice');
+            const salePriceInput = document.getElementById('saleprice');
+            const inventoryInput = document.getElementById('inventory');
+            
+            const costPrice = parsePriceValue(costPriceInput.value);
+            const listPrice = parsePriceValue(listPriceInput.value);
+            const salePrice = parsePriceValue(salePriceInput.value);
+            const inventory = parseInt(inventoryInput.value) || 0;
+            
+            if (costPrice <= 0) {
+                alert("Vui lòng nhập giá nhập hợp lệ!");
+                costPriceInput.focus();
+                return;
+            }
+            
+            if (listPrice <= 0) {
+                alert("Vui lòng nhập giá niêm yết hợp lệ!");
+                listPriceInput.focus();
+                return;
+            }
+            
+            if (salePrice <= 0) {
+                alert("Vui lòng nhập giá bán hợp lệ!");
+                salePriceInput.focus();
+                return;
+            }
+            
+            // Giá bán phải <= giá niêm yết
+            if (salePrice > listPrice) {
+                alert("Giá bán không được cao hơn giá niêm yết!");
+                salePriceInput.focus();
+                return;
+            }
+            
+            // Cảnh báo nếu giá bán < giá nhập (lỗ vốn)
+            if (salePrice < costPrice) {
+                if (!confirm("Cảnh báo: Giá bán thấp hơn giá nhập (lỗ vốn). Bạn có muốn tiếp tục?")) {
+                    salePriceInput.focus();
+                    return;
+                }
+            }
+            
+            if (inventory < 0) {
+                alert("Số lượng tồn kho phải >= 0!");
+                inventoryInput.focus();
+                return;
+            }
+            
+            if (!inventoryInput.value.trim()) {
+                alert("Vui lòng nhập số lượng tồn kho!");
+                inventoryInput.focus();
+                return;
+            }
+        }
+        
         currentStep++;
         console.log("currentStep ....", currentStep); 
         showStep(currentStep);
